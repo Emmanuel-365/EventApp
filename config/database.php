@@ -171,4 +171,11 @@ return [
 
     ],
 
+    'tenant' => [
+        'driver' => 'sqlite',
+        'database' => '', // Laisser vide, Stancl remplira dynamiquement
+        'prefix' => '',
+    ],
+
+
 ];

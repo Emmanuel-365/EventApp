@@ -2,9 +2,13 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Admin;
+use App\Models\Organizer;
+use App\Models\SuperAdmin;
+use Faker\Factory;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class DatabaseSeeder extends Seeder
 {
@@ -13,11 +17,41 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        $this->call([
+            RoleSeeder::class,
         ]);
+
+        if (SuperAdmin::count() === 0) {
+            SuperAdmin::create([
+                'email' => null,
+                'password' => Hash::make('password'),
+            ]);
+        }
+        if (Admin::count() === 0) {
+            Admin::create([
+                'nom' => Factory::create()->name,
+                'prenom' => Factory::create()->name,
+                'matricule' => Str::uuid(),
+                'telephone' => Factory::create()->phoneNumber(),
+                'email' => 'mdjiepmo@gmail.com',
+                'password' => Hash::make('password'),
+                'ville' => Factory::create()->city,
+                'pays' => Factory::create()->country,
+
+            ]);
+        }if (Organizer::count() === 0) {
+            Organizer::create([
+                'nom' => Factory::create()->name,
+                'prenom' => Factory::create()->name,
+                'matricule' => Str::uuid(),
+                'telephone' => Factory::create()->phoneNumber(),
+                'email' => 'mdjiepmo@gmail.com',
+                'password' => Hash::make('password'),
+                'ville' => Factory::create()->city,
+                'pays' => Factory::create()->country,
+                'profile_verification_status' => 'validé',
+            ]);
+        }
     }
 }
