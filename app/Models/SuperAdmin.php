@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 
 class SuperAdmin extends Authenticatable
 {
@@ -47,6 +48,11 @@ class SuperAdmin extends Authenticatable
             if (SuperAdmin::count() >= 1) {
                 throw new \Exception('Impossible de créer plus d’un SuperAdmin.');
             }
+
+           /* if (empty($superAdmin->id)) {
+                $superAdmin->id = Str::uuid();
+            }*/
+
         });
     }
 

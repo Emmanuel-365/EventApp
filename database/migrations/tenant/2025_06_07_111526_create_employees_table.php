@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('employees', function (Blueprint $table) {
             $table->id();
             $table->uuid('matricule')->unique();
+            $table->string('organizer_global_id');
             $table->string('nom');
             $table->string('prenom');
             $table->string('email')->unique()->nullable();

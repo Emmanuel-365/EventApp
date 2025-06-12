@@ -48,6 +48,14 @@ return [
             'driver' => 'session',
             'provider' => 'organizers',
         ],
+        'patron' => [
+            'driver' => 'session',
+            'provider' => 'employees',
+        ],
+        'employee' => [
+            'driver' => 'session',
+            'provider' => 'employees',
+        ],
         'client' => [
             'driver' => 'sanctum',
             'provider' => 'clients',
@@ -83,6 +91,14 @@ return [
         'organizers' => [
             'driver' => 'eloquent',
             'model' =>  App\Models\Organizer::class,
+        ],
+        'patrons' => [
+            'driver' => 'eloquent',
+            'model' =>  \App\Models\Tenant\Patron::class,
+        ],
+        'employees' => [
+            'driver' => 'eloquent',
+            'model' =>  \App\Models\Tenant\Employee::class,
         ],
         'clients' => [
             'driver' => 'eloquent',

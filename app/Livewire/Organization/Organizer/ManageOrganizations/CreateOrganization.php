@@ -4,6 +4,7 @@ namespace App\Livewire\Organization\Organizer\ManageOrganizations;
 
 use App\Enums\TypeEntreprise;
 use App\Models\Organization;
+use App\Models\Organizer;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -124,7 +125,7 @@ class CreateOrganization extends Component
     {
         $this->validate();
 
-        $organizer = Auth::guard('organizer')->user();
+        $organizer = Organizer::find(Auth::guard('organizer')->id());
 
         if (!$organizer) {
             $this->addError('general', 'Vous devez être connecté en tant qu\'organisateur pour créer une organisation.');
@@ -151,8 +152,12 @@ class CreateOrganization extends Component
                 'subdomain' => $this->subdomain,
             ]);
 
-            $organization->domains()->save($domain);
 
+            $organization->domains()->save($domain);
+            $organizer->tenants()->attach($organization->id);
+            $organizer->touch();
+
+            $fullDomain = $organization->domains()->first()->domain;
             $this->dispatch('organizationCreatedSuccess', message: 'Organisation "' . $this->nom . '" créée avec succès. Accédez-y via: ' . $fullDomain);
             $this->close();
         } catch (\Exception $e) {

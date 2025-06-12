@@ -83,9 +83,10 @@ class Organization extends BaseTenant implements TenantWithDatabase
             if (empty($organization->matricule)) {
                 $organization->matricule = (string) Str::uuid();
             }
-            if (empty($organization->id)) {
+
+           /* if (empty($organization->id)) {
                 $organization->id = (string) Str::uuid();
-            }
+            }*/
         });
     }
 

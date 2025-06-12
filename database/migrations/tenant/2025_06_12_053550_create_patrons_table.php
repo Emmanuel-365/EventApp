@@ -11,9 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('organizers', function (Blueprint $table) {
+        Schema::create('patrons', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('matricule')->unique();
+            $table->uuid('organizer_global_id')->unique()->nullable();
             $table->string('nom');
             $table->string('prenom');
             $table->string('email')->unique()->nullable();
@@ -28,7 +29,9 @@ return new class extends Migration
             $table->string('photoProfil')->nullable();
             $table->string('pieceIdentiteRecto')->nullable();
             $table->string('pieceIdentiteVerso')->nullable();
+
             $table->string('profile_verification_status')->default('en cours');
+
             $table->softDeletes();
             $table->timestamps();
         });
@@ -39,6 +42,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('organizers');
+        Schema::dropIfExists('patrons');
     }
 };

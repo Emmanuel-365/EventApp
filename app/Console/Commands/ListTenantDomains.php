@@ -6,7 +6,7 @@ use Illuminate\Console\Command;
 use Stancl\Tenancy\Database\Models\Domain;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 
-// Import the Domain model
+
 
 class ListTenantDomains extends Command
 {

@@ -89,7 +89,6 @@ class EmailResetForm extends Component
 
             $user->email = $this->newEmail;
             $user->save();
-
             $this->reset(['step', 'newEmail', 'currentPassword', 'otp']);
             $this->dispatch('refreshComponent');
             $this->dispatch('dataUpdate');

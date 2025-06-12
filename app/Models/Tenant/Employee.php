@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Tenant;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -8,12 +8,14 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 use Spatie\Permission\Traits\HasRoles;
-use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
+use Stancl\Tenancy\Database\Concerns\TenantConnection;
 
 class Employee extends Authenticatable
 {
-    use HasFactory, Notifiable, BelongsToTenant;
+    use HasFactory, Notifiable;
     use SoftDeletes, HasRoles;
+
+    protected $table = 'employees';
 
     protected $fillable = [
         'matricule',
@@ -31,14 +33,14 @@ class Employee extends Authenticatable
         'pieceIdentiteVerso',
         'passcode_reset_status',
         'passcode_reset_date',
+        'organizer_global_id',
     ];
 
     protected $hidden = [
         'password_changed_at',
         'password',
         'remember_token',
-        'created_at',
-        'updated_at',
+
     ];
 
     protected $casts = [
@@ -60,8 +62,5 @@ class Employee extends Authenticatable
         });
     }
 
-    public function organization(): \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(Organization::class, 'organization_id');
-    }
+
 }

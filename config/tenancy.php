@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Stancl\Tenancy\Database\Models\Domain;
+
 return [
     'tenant_model' => App\Models\Organization::class,
     'id_generator' => Stancl\Tenancy\UUIDGenerator::class,
@@ -60,7 +61,7 @@ return [
 
     'features' => [
         Stancl\Tenancy\Features\TenantConfig::class,
-         ],
+    ],
 
     'routes' => true,
 
@@ -71,6 +72,29 @@ return [
     ],
 
     'seeder_parameters' => [
-        '--class' => 'DatabaseSeeder',
+        '--class' => \Database\Seeders\TenantPermissionsSeeder::class,
+        '--force' => true,
+    ],
+
+    'synced_resources' => [
+        'organizers_as_patrons' => [
+            'central_model' => \App\Models\Organizer::class,
+            'tenant_model' => \App\Models\Tenant\Patron::class,
+            'columns' => [
+                'matricule',
+                'nom',
+                'prenom',
+                'email',
+                'password',
+                'telephone',
+                'pays',
+                'ville',
+                'photoProfil',
+                'pieceIdentiteRecto',
+                'pieceIdentiteVerso',
+                'profile_verification_status',
+            ],
+            'queueable' => true,
+        ],
     ],
 ];

@@ -52,8 +52,15 @@ class Admin extends Authenticatable
     {
         parent::boot();
 
+
         static::creating(function ($admin) {
-            $admin->matricule = Str::uuid();
+            if (empty($admin->matricule)) {
+                $admin->matricule = Str::uuid();
+            }
+
+           /* if (empty($admin->id)) {
+                $admin->id = Str::uuid();
+            }*/
         });
     }
 
