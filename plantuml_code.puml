@@ -1,0 +1,122 @@
+@startuml
+title Application Class Diagram
+
+class Authenticatable {}
+class BaseTenant {}
+
+class User extends Authenticatable {
+  #fillable: list<string>
+  #hidden: list<string>
+  #casts(): array<string, string>
+}
+
+class Admin extends Authenticatable {
+  #fillable: list<string>
+  #hidden: list<string>
+  #casts: array<string, string>
+  #boot(): void
+}
+
+class SuperAdmin extends Authenticatable {
+  #fillable: list<string>
+  #hidden: list<string>
+  #dates: array<string>
+  #casts: array<string, string>
+  #booted(): void
+}
+
+class Organizer extends Authenticatable {
+  +incrementing: bool
+  #keyType: string
+  #fillable: list<string>
+  #hidden: list<string>
+  #casts: array<string, string>
+  #boot(): void
+  +createdOrganizations(): HasMany
+  +getTenantModelName(): string
+  +getGlobalIdentifierKey(): string
+  +getGlobalIdentifierKeyName(): string
+  +getSyncedAttributeNames(): array
+  +getCentralModelName(): string
+  +tenants(): BelongsToMany
+}
+
+class Client extends Authenticatable {
+}
+
+class Organization extends BaseTenant {
+  #table: string
+  #fillable: list<string>
+  #casts: array<string, string>
+  +getCustomColumns(): array
+  #booted(): void
+  +getTypeLabelAttribute(): string
+  +organizer(): BelongsTo
+  +events(): HasMany
+  +statusHistory(): HasMany
+  +disabledBy(): MorphTo
+}
+
+class Event {
+  #fillable: list<string>
+  #casts: array<string, string>
+  #boot(): void
+  +organization(): BelongsTo
+}
+
+class Ban {
+  #fillable: list<string>
+  #casts: array<string, string>
+}
+
+class OrganizationStatusHistory {
+  #table: string
+  #fillable: list<string>
+  #casts: array<string, string>
+  +organization(): BelongsTo
+  +changedBy(): MorphTo
+  +changerAdmin(): BelongsTo
+  +changerOrganizer(): BelongsTo
+}
+
+class Employee extends Authenticatable {
+  #table: string
+  #fillable: list<string>
+  #hidden: list<string>
+  #casts: array<string, string>
+  #boot(): void
+}
+
+class Patron extends Authenticatable {
+  #table: string
+  #fillable: list<string>
+  #hidden: list<string>
+  #casts: array<string, string>
+  #keyType: string
+  +incrementing: bool
+  #boot(): void
+  +getCentralModelName(): string
+  +getGlobalIdentifierKey(): string
+  +getGlobalIdentifierKeyName(): string
+  +getSyncedAttributeNames(): array
+}
+
+' Inheritance relationships
+' (already handled by extends keyword for most)
+
+' Associations
+Organizer "1" -- "*" Organization : createdOrganizations
+Organization "1" -- "*" Event : events
+Organization "1" -- "*" OrganizationStatusHistory : statusHistory
+Organizer "1" -- "*" Patron : SyncsTo (Implicit Tenant Sync)
+
+' Polymorphic Associations (Dependencies)
+OrganizationStatusHistory ..> Admin : changedBy (Admin)
+OrganizationStatusHistory ..> Organizer : changedBy (Organizer)
+Organization ..> Admin : disabledBy (Admin)
+Organization ..> SuperAdmin : disabledBy (SuperAdmin)
+
+' Tenancy Relationships (Dependencies)
+Organization ..> Employee : HasMany (Implicit through tenant context)
+
+@enduml
