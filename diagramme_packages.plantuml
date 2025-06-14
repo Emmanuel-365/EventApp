@@ -1,0 +1,131 @@
+@startuml
+!theme materia
+
+package "Application (App)" {
+  package "Console" {
+    [App.Console.Commands]
+  }
+
+  package "Enums" {
+    [App.Enums]
+  }
+
+  package "HTTP" {
+    package "Controllers" {
+      [App.Http.Controllers.Admin]
+      [App.Http.Controllers.Organizer]
+      [App.Http.Controllers.SuperAdmin]
+      [App.Http.Controllers.Controller]
+    }
+    package "Middleware" {
+      [App.Http.Middleware]
+    }
+  }
+
+  package "Livewire" {
+    [App.Livewire.Admin]
+    [App.Livewire.Auth]
+    [App.Livewire.GestionRoles]
+    [App.Livewire.Organization]
+    [App.Livewire.SuperAdmin]
+  }
+
+  package "Mail" {
+    [App.Mail]
+  }
+
+  package "Models" {
+    [App.Models.Tenant]
+    [App.Models]
+  }
+
+  package "Providers" {
+    [App.Providers]
+  }
+
+  package "Services" {
+    [App.Services]
+  }
+}
+
+package "Configuration (Config)" {
+  [Config]
+}
+
+package "Database" {
+  [Database.Migrations]
+  [Database.Seeders]
+  [Database.Factories]
+}
+
+package "Resources" {
+  package "Views" {
+    [Resources.Views]
+  }
+}
+
+package "Routes" {
+  [Routes.Web]
+  [Routes.Tenant]
+  [Routes.Console]
+}
+
+package "Tests" {
+  [Tests.Feature]
+  [Tests.Unit]
+}
+
+' Relationships
+[App.Http.Controllers.Controller] ..> [App.Services] : utilise
+[App.Http.Controllers.Controller] ..> [App.Models] : utilise
+[App.Http.Controllers.Admin] ...> [App.Services] : utilise
+[App.Http.Controllers.Admin] ...> [App.Models] : utilise
+[App.Http.Controllers.Organizer] ...> [App.Services] : utilise
+[App.Http.Controllers.Organizer] ...> [App.Models] : utilise
+[App.Http.Controllers.SuperAdmin] ...> [App.Services] : utilise
+[App.Http.Controllers.SuperAdmin] ...> [App.Models] : utilise
+
+[App.Livewire.Admin] ..> [App.Services] : utilise
+[App.Livewire.Admin] ..> [App.Models] : utilise
+[App.Livewire.Auth] ..> [App.Services] : utilise
+[App.Livewire.Auth] ..> [App.Models] : utilise
+[App.Livewire.GestionRoles] ..> [App.Services] : utilise
+[App.Livewire.GestionRoles] ..> [App.Models] : utilise
+[App.Livewire.Organization] ..> [App.Services] : utilise
+[App.Livewire.Organization] ..> [App.Models] : utilise
+[App.Livewire.SuperAdmin] ..> [App.Services] : utilise
+[App.Livewire.SuperAdmin] ..> [App.Models] : utilise
+
+[App.Services] ..> [App.Models] : utilise
+[App.Services] ..> [App.Mail] : peut utiliser
+[App.Console.Commands] ..> [App.Services] : utilise
+[App.Console.Commands] ..> [App.Models] : utilise
+
+[App.Providers] ..> [App.Services] : enregistre/configure
+[App.Providers] ..> [Config] : lit
+
+[Routes.Web] ..> [App.Http.Controllers.Controller] : mappe vers
+[Routes.Web] ..> [App.Livewire.Admin] : mappe vers
+[Routes.Web] ..> [App.Livewire.Auth] : mappe vers
+[Routes.Web] ..> [App.Livewire.Organization] : mappe vers
+[Routes.Web] ..> [App.Livewire.SuperAdmin] : mappe vers
+[Routes.Tenant] ..> [App.Http.Controllers.Controller] : mappe vers
+[Routes.Console] ..> [App.Console.Commands] : définit
+
+[Database.Migrations] ..> [App.Models] : définit la structure pour
+[Database.Seeders] ..> [App.Models] : peuple
+[Database.Factories] ..> [App.Models] : crée des instances de
+
+[App.Http.Middleware] ..> [App.Services] : peut utiliser
+
+[Tests.Feature] ..> [App.Http.Controllers.Controller] : teste
+[Tests.Feature] ..> [App.Livewire.Admin] : teste
+[Tests.Unit] ..> [App.Services] : teste
+[Tests.Unit] ..> [App.Models] : teste
+
+[Resources.Views] <-- [App.Http.Controllers.Controller] : rend
+[Resources.Views] <-- [App.Livewire.Admin] : rend
+
+[App.Models.Tenant] -up-|> [App.Models]
+
+@enduml
