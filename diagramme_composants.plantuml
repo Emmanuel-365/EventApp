@@ -1,0 +1,57 @@
+@startuml
+skinparam componentStyle rectangle
+
+package "Utilisateur" {
+  [Interface Utilisateur (Vues Blade & Livewire)] <<Frontend>> as Frontend
+}
+
+package "Serveur Applicatif (Laravel)" {
+  [Routeur (routes/web.php, routes/tenant.php)] as Router
+  [Middlewares (Auth, Rôles, Locataire)] as Middleware
+  [Contrôleurs (app/Http/Controllers, app/Livewire)] as Controllers
+  [Services Applicatifs (app/Services)] as Services
+  [Modèles Eloquent (app/Models)] as Models
+  [Modèles Eloquent Spécifiques au Locataire (app/Models/Tenant)] as TenantModels
+  [Gestion des Locataires (stancl/tenancy)] as Tenancy
+  [Système d'Authentification & Autorisation] as Auth
+  [Notifications & Emails (app/Mail)] as Mailer
+  [Commandes Console (app/Console/Commands)] as ArtisanCommands
+}
+
+package "Infrastructure" {
+  [Base de Données Principale] <<Database>> as MainDB
+  [Bases de Données des Locataires] <<Database>> as TenantDB
+}
+
+' Relations Principales
+Frontend --> Router : Requêtes HTTP
+Router --> Middleware : Filtre & Redirige
+Middleware --> Controllers : Transmet à
+Controllers --> Services : Utilise
+Controllers --> Models : Interagit avec
+Controllers --> Mailer : Déclenche
+Controllers --> Auth : Utilise
+Controllers --> Frontend : Réponses HTTP
+
+Services --> Models : Utilise
+Services --> Services : Peut utiliser d'autres services
+Services --> Mailer : Déclenche
+
+Models --> MainDB : Accède/Modifie
+TenantModels --> TenantDB : Accède/Modifie
+
+Auth --> Models : Utilise
+Auth ..> Middleware : Intégré dans (dépendance)
+Auth <.. Controllers : Utilisé par (dépendance)
+
+' Relations avec la Gestion des Locataires
+Tenancy ..> Middleware : Identifie locataire via Middleware (dépendance)
+Tenancy ..> TenantModels : Configure accès BD (dépendance)
+Tenancy --> TenantDB : Gère
+Tenancy ..> Router : Impacte (dépendance pour routes spécifiques)
+Tenancy <.. ArtisanCommands : Utilisé par
+
+ArtisanCommands --> Services : Utilise
+ArtisanCommands --> Models : Utilise
+
+@enduml
