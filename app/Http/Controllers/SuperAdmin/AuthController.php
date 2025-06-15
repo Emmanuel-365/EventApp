@@ -24,6 +24,7 @@ class AuthController extends Controller
 
         if ($superAdmin && Hash::check($request->input('password'), $superAdmin->password)) {
             Auth::guard('super-admin')->login($superAdmin);
+
             return redirect()->route('super-admin.manageAdminsView');
         } else {
             return back()->with(['error' => 'Mot de passe incorrect'], 401);

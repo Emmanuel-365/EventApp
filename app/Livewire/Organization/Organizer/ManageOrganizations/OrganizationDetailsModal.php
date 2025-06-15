@@ -7,8 +7,11 @@ use App\Models\Organizer;
 use App\Services\OrganizationStatusService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Hash; // Ajouté pour Hash::check si nécessaire
 use InvalidArgumentException;
 use Livewire\Component;
+use Stancl\Tenancy\Facades\Tenancy; // Ajouté pour initialiser le tenant
+use App\Models\Tenant\Patron; // Ajouté pour le modèle Patron du tenant
 
 class OrganizationDetailsModal extends Component
 {
@@ -63,9 +66,77 @@ class OrganizationDetailsModal extends Component
             return;
         }
 
+        // Charger l'organisation et s'assurer qu'elle appartient à l'organisateur actuel
         $this->organization = Organization::where('id', $this->organizationId)
             ->where('organizer_id', $organizer->id)
             ->first();
+    }
+
+    /**
+     * Gère la connexion à l'organisation (tenant) sélectionnée en tant que patron.
+     */
+    public function connectToTenant(): void
+    {
+        $this->resetValidation();
+        $this->errorMessage = null;
+
+        if (!$this->organization) {
+            $this->errorMessage = "Organisation introuvable pour la connexion.";
+            return;
+        }
+
+        if ($this->organization->validation_status !== 'accepted' || $this->organization->activation_status !== 'enabled') {
+            $this->errorMessage = "Impossible de se connecter. L'organisation n'est pas acceptée ou activée.";
+            return;
+        }
+
+        /** @var Organizer $organizer */
+        $organizer = Auth::guard('organizer')->user();
+
+        if (!$organizer) {
+            $this->errorMessage = "Aucun organisateur connecté. Veuillez vous reconnecter.";
+            Auth::guard('organizer')->logout();
+            return;
+        }
+
+        try {
+            $tenant = $this->organization; // Supposons que $this->organization est votre instance du modèle Tenant
+
+            if (!$tenant) {
+                $this->errorMessage = "Contexte de tenant introuvable pour cette organisation.";
+                return;
+            }
+
+
+            Tenancy::initialize($tenant);
+
+             $patron = Patron::where('email', $organizer->email)->first();
+
+             if ($patron) {
+                Auth::guard('patron')->login($patron);
+
+                $this->close();
+
+                $tenantDomain = $tenant->domains->first()->domain;
+                $port = (app()->environment('local') || app()->environment('development')) ? ':8000' : '';
+                $redirectUrl = 'http://' . $tenantDomain . $port . route('patron.patronPanel', [], false);
+
+
+                $this->redirect($redirectUrl);
+
+                return;
+
+            } else {
+                Tenancy::end();
+                $this->errorMessage = "Impossible de trouver un compte patron lié pour cette organisation. La synchronisation est-elle complète ?";
+                Log::warning("No Patron found for Organizer '{$organizer->email}' in tenant '{$tenant->id}'.");
+            }
+
+        } catch (\Exception $e) {
+            Tenancy::end();
+            $this->errorMessage = "Une erreur est survenue lors de la connexion au tenant: " . $e->getMessage();
+            Log::error("Error connecting to tenant as Patron: " . $e->getMessage(), ['exception' => $e, 'organization_id' => $this->organizationId, 'organizer_id' => $organizer->id]);
+        }
     }
 
     /**

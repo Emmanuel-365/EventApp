@@ -19,10 +19,29 @@ use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 
 Route::middleware([
     'web',
-    Stancl\Tenancy\Middleware\InitializeTenancyByDomain::class,
+    'universal',
     PreventAccessFromCentralDomains::class,
+    \App\Http\Middleware\Tenant\CheckTenantStatus::class,
+    Stancl\Tenancy\Middleware\InitializeTenancyByDomain::class,
+
 ])->group(function () {
-    Route::get('/', function () {
-        return 'This is your multi-tenant application. The id of the current tenant is ' . tenant('id');
-    });
+
+    /** ROUTES DU PATRON */
+
+    /** CONNECTED */
+    Route::controller(App\Http\Controllers\Tenant\Patron\AuthController::class)
+        ->group(function (){
+            Route::get('/login','loginView')->name('patron.loginView');
+            Route::post('/login','login')->name('patron.login');
+
+            Route::delete('/logout','logout')->name('patron.logout');
+
+        });
+    /** DISCONNECTED */
+    Route::controller(App\Http\Controllers\Tenant\Patron\BaseController::class)
+        ->middleware([ App\Http\Middleware\Tenant\PatronMiddleware::class ])
+        ->group(function (){
+            Route::get('/patron-panel','patronPanel')->name('patron.patronPanel');
+        });
+
 });

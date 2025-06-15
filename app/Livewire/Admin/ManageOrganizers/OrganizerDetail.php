@@ -22,7 +22,7 @@ class OrganizerDetail extends Component
     ];
 
 
-    public function mount(int $organizerId, BanService $banService): void
+    public function mount(string $organizerId, BanService $banService): void
     {
 
         $this->organizer = Organizer::withTrashed()->findOrFail($organizerId);

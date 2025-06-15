@@ -4,6 +4,6 @@
 
 @section('content')
 
-    @livewire('admin.manage-organizers.organizers-data-table')
+    <livewire:admin.manage-organizers.organizers-data-table />
 
 @endsection

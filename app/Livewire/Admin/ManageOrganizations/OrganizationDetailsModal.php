@@ -14,11 +14,15 @@ use Livewire\Component;
 class OrganizationDetailsModal extends Component
 {
     public bool $show = false;
+
+    public ?string $selectedOrganizerId ;
     public ?string $organizationId = null;
     public ?Organization $organization = null;
     public Collection $statusHistory;
 
     public string $reason = '';
+
+    public bool $showDetailModal = false;
     public bool $showRejectReasonModal = false;
     public bool $showDisableReasonModal = false;
     public bool $showEnableReasonModal = false;
@@ -72,6 +76,18 @@ class OrganizationDetailsModal extends Component
         ]);
         $this->statusHistory = new Collection();
         $this->resetValidation();
+    }
+
+    public function showOrganizer(string $organizerId): void
+    {
+        $adminUser = Auth::guard('admin')->user();
+        if (!$adminUser || !$adminUser->can('see-organizer-profile')) {
+            session()->flash('error', "Vous n'avez pas la permission de voir les détails des organisateurs.");
+            return;
+        }
+        $this->selectedOrganizerId = $organizerId;
+        $this->showDetailModal = true;
+        $this->dispatch('openOrganizerDetailsModal' , organizerId: $this->selectedOrganizerId );
     }
 
     public function loadOrganization(): void

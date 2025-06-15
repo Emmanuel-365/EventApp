@@ -50,7 +50,7 @@ return [
         ],
         'patron' => [
             'driver' => 'session',
-            'provider' => 'employees',
+            'provider' => 'patrons',
         ],
         'employee' => [
             'driver' => 'session',

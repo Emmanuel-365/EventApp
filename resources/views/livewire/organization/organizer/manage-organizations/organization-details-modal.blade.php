@@ -65,6 +65,21 @@
                 </p>
             </div>
 
+            {{-- Nouveau bouton pour se connecter au tenant --}}
+            {{-- Affiche le bouton uniquement si l'organisation est acceptée et activée --}}
+            @if ($organization->validation_status === 'accepted' && $organization->activation_status === 'enabled')
+                <div class="mb-6">
+                    <button wire:click="connectToTenant"
+                            class="w-full inline-flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-blue-700 dark:hover:bg-blue-800 dark:focus:ring-blue-600">
+                        Se connecter à l'organisation
+                    </button>
+                </div>
+            @else
+                <p class="text-center text-gray-600 dark:text-gray-400 text-sm mb-6">
+                    La connexion à cette organisation n'est possible que si elle est <span class="font-bold">acceptée</span> et <span class="font-bold">activée</span>.
+                </p>
+            @endif
+
             {{-- Actions de désactivation/activation --}}
             <div class="mt-8 pt-4 border-t border-gray-200 dark:border-gray-700">
                 @if ($organization->validation_status === 'accepted') {{-- Seules les organisations acceptées peuvent être activées/désactivées --}}
@@ -91,7 +106,7 @@
                     @endphp
 
                     @if($canEnable)
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Réactiver l'organisation</h3>
+                        <h3 class="lg:text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Réactiver l'organisation</h3>
                         <button wire:click="enableOrganization"
                                 class="w-full inline-flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 dark:bg-green-700 dark:hover:bg-green-800 dark:focus:ring-green-600">
                             Activer l'organisation

@@ -153,6 +153,8 @@ class CreateOrganization extends Component
             ]);
 
 
+
+
             $organization->domains()->save($domain);
             $organizer->tenants()->attach($organization->id);
             $organizer->touch();

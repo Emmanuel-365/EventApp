@@ -115,14 +115,16 @@
 
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Matricule</label>
-                        <p class="form-display-text"><?php echo e($matricule); ?></p>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Matricule</label>
+                        
+                        <p class="form-display-text px-4 py-2 text-base bg-gray-100 dark:bg-gray-700 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-200"><?php echo e($matricule); ?></p>
                     </div>
 
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Statut de Vérification du Profil</label>
-                        <p class="form-display-text">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Statut de Vérification du Profil</label>
+                        
+                        <p class="form-display-text px-4 py-2 text-base bg-gray-100 dark:bg-gray-700 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-200">
                             <?php echo e($organizer->profile_verification_status); ?>
 
                         </p>
@@ -130,37 +132,43 @@
 
                     <!--[if BLOCK]><![endif]--><?php if($organizer->profile_verification_status !== 'en attente'): ?>
                         
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nom:</label>
-                        <p class="form-display-text"><?php echo e($organizer->nom); ?></p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Prénom:</label>
-                        <p class="form-display-text"><?php echo e($organizer->prenom); ?></p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email:</label>
-                        <p class="form-display-text"><?php echo e($organizer->email); ?></p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Téléphone:</label>
-                        <p class="form-display-text"><?php echo e($organizer->telephone); ?></p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Pays:</label>
-                        <p class="form-display-text"><?php echo e($organizer->pays); ?></p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ville:</label>
-                        <p class="form-display-text"><?php echo e($organizer->ville); ?></p>
-                    </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nom:</label>
+                            
+                            <p class="form-display-text px-4 py-2 text-base bg-gray-100 dark:bg-gray-700 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-200"><?php echo e($organizer->nom); ?></p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Prénom:</label>
+                            
+                            <p class="form-display-text px-4 py-2 text-base bg-gray-100 dark:bg-gray-700 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-200"><?php echo e($organizer->prenom); ?></p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email:</label>
+                            
+                            <p class="form-display-text px-4 py-2 text-base bg-gray-100 dark:bg-gray-700 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-200"><?php echo e($organizer->email); ?></p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Téléphone:</label>
+                            
+                            <p class="form-display-text px-4 py-2 text-base bg-gray-100 dark:bg-gray-700 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-200"><?php echo e($organizer->telephone); ?></p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Pays:</label>
+                            
+                            <p class="form-display-text px-4 py-2 text-base bg-gray-100 dark:bg-gray-700 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-200"><?php echo e($organizer->pays); ?></p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Ville:</label>
+                            
+                            <p class="form-display-text px-4 py-2 text-base bg-gray-100 dark:bg-gray-700 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-200"><?php echo e($organizer->ville); ?></p>
+                        </div>
                     <?php else: ?>
                         
                         <form wire:submit.prevent="saveProfile" class="col-span-full grid grid-cols-1 sm:grid-cols-2 gap-6">
                             <div>
-                                <label for="nom" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nom:</label>
+                                <label for="nom" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nom:</label>
                                 <input type="text" id="nom" wire:model.live="nom"
-                                       class="form-input w-full rounded-md shadow-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:ring-blue-500 focus:border-blue-500">
+                                       class="form-input w-full px-4 py-2 text-base rounded-lg shadow-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                 <!--[if BLOCK]><![endif]--><?php $__errorArgs = ['nom'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -171,9 +179,9 @@ endif;
 unset($__errorArgs, $__bag); ?><!--[if ENDBLOCK]><![endif]-->
                             </div>
                             <div>
-                                <label for="prenom" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Prénom:</label>
+                                <label for="prenom" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Prénom:</label>
                                 <input type="text" id="prenom" wire:model.live="prenom"
-                                       class="form-input w-full rounded-md shadow-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:ring-blue-500 focus:border-blue-500">
+                                       class="form-input w-full px-4 py-2 text-base rounded-lg shadow-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                 <!--[if BLOCK]><![endif]--><?php $__errorArgs = ['prenom'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -185,13 +193,14 @@ unset($__errorArgs, $__bag); ?><!--[if ENDBLOCK]><![endif]-->
                             </div>
                             
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email:</label>
-                                <p class="form-display-text"><?php echo e($organizer->email); ?></p>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email:</label>
+                                
+                                <p class="form-display-text px-4 py-2 text-base bg-gray-100 dark:bg-gray-700 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-200"><?php echo e($organizer->email); ?></p>
                             </div>
                             <div>
-                                <label for="telephone" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Téléphone:</label>
+                                <label for="telephone" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Téléphone:</label>
                                 <input type="text" id="telephone" wire:model.live="telephone"
-                                       class="form-input w-full rounded-md shadow-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:ring-blue-500 focus:border-blue-500">
+                                       class="form-input w-full px-4 py-2 text-base rounded-lg shadow-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                 <!--[if BLOCK]><![endif]--><?php $__errorArgs = ['telephone'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -202,9 +211,9 @@ endif;
 unset($__errorArgs, $__bag); ?><!--[if ENDBLOCK]><![endif]-->
                             </div>
                             <div>
-                                <label for="pays" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Pays:</label>
+                                <label for="pays" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Pays:</label>
                                 <input type="text" id="pays" wire:model.live="pays"
-                                       class="form-input w-full rounded-md shadow-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:ring-blue-500 focus:border-blue-500">
+                                       class="form-input w-full px-4 py-2 text-base rounded-lg shadow-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                 <!--[if BLOCK]><![endif]--><?php $__errorArgs = ['pays'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -215,9 +224,9 @@ endif;
 unset($__errorArgs, $__bag); ?><!--[if ENDBLOCK]><![endif]-->
                             </div>
                             <div>
-                                <label for="ville" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ville:</label>
+                                <label for="ville" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Ville:</label>
                                 <input type="text" id="ville" wire:model.live="ville"
-                                       class="form-input w-full rounded-md shadow-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:ring-blue-500 focus:border-blue-500">
+                                       class="form-input w-full px-4 py-2 text-base rounded-lg shadow-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                 <!--[if BLOCK]><![endif]--><?php $__errorArgs = ['ville'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -271,7 +280,7 @@ unset($__errorArgs, $__bag); ?><!--[if ENDBLOCK]><![endif]-->
                                         <div class="mt-4 flex justify-center items-center">
                                             <img src="<?php echo e($photoProfilPreview); ?>" class="h-32 w-32 object-cover rounded-full shadow-md" alt="Preview Photo de Profil">
                                             <button type="button" wire:click="$set('photoProfil', null); $set('photoProfilPreview', null);" class="ml-2 text-red-600 hover:text-red-800 self-start">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
                                                     <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm6 0a1 1 0 01-2 0v6a1 1 0 112 0V8z" clip-rule="evenodd" />
                                                 </svg>
                                             </button>
@@ -315,9 +324,9 @@ endif;
 unset($__errorArgs, $__bag); ?><!--[if ENDBLOCK]><![endif]-->
                                     <!--[if BLOCK]><![endif]--><?php if($pieceIdentiteRectoPreview): ?>
                                         <div class="mt-4 flex justify-center items-center">
-                                            <img src="<?php echo e($pieceIdentiteRectoPreview); ?>" class="h-48 w-full object-contain shadow-md" alt="Preview Pièce d'Identité Recto">
+                                            <img src="<?php echo e($pieceIdentiteRectoPreview); ?>" class="h-48 w-full object-contain shadow-md rounded-md" alt="Preview Pièce d'Identité Recto">
                                             <button type="button" wire:click="$set('pieceIdentiteRecto', null); $set('pieceIdentiteRectoPreview', null);" class="ml-2 text-red-600 hover:text-red-800 self-start">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
                                                     <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm6 0a1 1 0 01-2 0v6a1 1 0 112 0V8z" clip-rule="evenodd" />
                                                 </svg>
                                             </button>
@@ -361,9 +370,9 @@ endif;
 unset($__errorArgs, $__bag); ?><!--[if ENDBLOCK]><![endif]-->
                                     <!--[if BLOCK]><![endif]--><?php if($pieceIdentiteVersoPreview): ?>
                                         <div class="mt-4 flex justify-center items-center">
-                                            <img src="<?php echo e($pieceIdentiteVersoPreview); ?>" class="h-48 w-full object-contain shadow-md" alt="Preview Pièce d'Identité Verso">
+                                            <img src="<?php echo e($pieceIdentiteVersoPreview); ?>" class="h-48 w-full object-contain shadow-md rounded-md" alt="Preview Pièce d'Identité Verso">
                                             <button type="button" wire:click="$set('pieceIdentiteVerso', null); $set('pieceIdentiteVersoPreview', null);" class="ml-2 text-red-600 hover:text-red-800 self-start">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
                                                     <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm6 0a1 1 0 01-2 0v6a1 1 0 112 0V8z" clip-rule="evenodd" />
                                                 </svg>
                                             </button>
@@ -375,7 +384,7 @@ unset($__errorArgs, $__bag); ?><!--[if ENDBLOCK]><![endif]-->
                             
                             <div class="col-span-full flex justify-end mt-8">
                                 <button type="submit"
-                                        class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-blue-700 dark:hover:bg-blue-600 dark:focus:ring-600 transition-colors duration-200">
+                                        class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-blue-700 dark:hover:bg-blue-600 dark:focus:ring-600 transition-colors duration-200 text-base">
                                     Enregistrer les modifications
                                 </button>
                             </div>
@@ -383,22 +392,25 @@ unset($__errorArgs, $__bag); ?><!--[if ENDBLOCK]><![endif]-->
                     <?php endif; ?><!--[if ENDBLOCK]><![endif]--> 
 
                     
-                    
                     <div class="sm:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Mot de Passe</label>
-                        <p class="form-display-text"><?php echo e($organizer->password ? 'Défini' : 'Non défini'); ?></p>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Mot de Passe</label>
+                        
+                        <p class="form-display-text px-4 py-2 text-base bg-gray-100 dark:bg-gray-700 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-200"><?php echo e($organizer->password ? 'Défini' : 'Non défini'); ?></p>
                     </div>
                     <div class="sm:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Dernier changement mot de passe</label>
-                        <p class="form-display-text"><?php echo e($passwordChangedAt); ?></p>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Dernier changement mot de passe</label>
+                        
+                        <p class="form-display-text px-4 py-2 text-base bg-gray-100 dark:bg-gray-700 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-200"><?php echo e($passwordChangedAt); ?></p>
                     </div>
                     <div class="sm:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Passcode</label>
-                        <p class="form-display-text"><?php echo e($hasPasscode ? 'Défini' : 'Non défini'); ?></p>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Passcode</label>
+                        
+                        <p class="form-display-text px-4 py-2 text-base bg-gray-100 dark:bg-gray-700 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-200"><?php echo e($hasPasscode ? 'Défini' : 'Non défini'); ?></p>
                     </div>
                     <div class="sm:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Dernière réinitialisation Passcode</label>
-                        <p class="form-display-text"><?php echo e($passcodeResetDate); ?></p>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Dernière réinitialisation Passcode</label>
+                        
+                        <p class="form-display-text px-4 py-2 text-base bg-gray-100 dark:bg-gray-700 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-200"><?php echo e($passcodeResetDate); ?></p>
                     </div>
                 </div>
 
@@ -406,12 +418,12 @@ unset($__errorArgs, $__bag); ?><!--[if ENDBLOCK]><![endif]-->
                 <div class="md:col-span-1 space-y-6">
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Photo de Profil</label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Photo de Profil</label>
                         <div class="flex items-center justify-center">
                             <!--[if BLOCK]><![endif]--><?php if($photoProfilUrl): ?>
-                                <img src="<?php echo e($photoProfilUrl); ?>" class="h-32 w-32 object-cover rounded-full shadow-md" alt="Photo de Profil">
+                                <img src="<?php echo e($photoProfilUrl); ?>" class="h-32 w-32 object-cover rounded-full shadow-lg" alt="Photo de Profil">
                             <?php else: ?>
-                                <div class="h-32 w-32 bg-gray-200 dark:bg-gray-600 rounded-full flex items-center justify-center text-gray-500 dark:text-gray-300 text-5xl font-bold">
+                                <div class="h-32 w-32 bg-gray-200 dark:bg-gray-600 rounded-full flex items-center justify-center text-gray-500 dark:text-gray-300 text-5xl font-bold shadow-lg">
                                     <?php echo e(strtoupper(substr($prenom, 0, 1))); ?><?php echo e(strtoupper(substr($nom, 0, 1))); ?>
 
                                 </div>
@@ -421,8 +433,8 @@ unset($__errorArgs, $__bag); ?><!--[if ENDBLOCK]><![endif]-->
 
                     
                     <div x-data="{ isFlipping: false }" class="relative perspective-1000">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Pièce d'Identité</label>
-                        <div class="flip-card w-full h-48 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-600">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Pièce d'Identité</label>
+                        <div class="flip-card w-full h-48 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-600 shadow-lg">
                             <div class="flip-card-inner w-full h-full relative"
                                  :style="$wire.showPieceIdentiteRecto ? 'transform: rotateY(0deg)' : 'transform: rotateY(180deg)'"
                                  :class="isFlipping ? 'transition-transform duration-600 ease-in-out' : ''">
@@ -431,15 +443,15 @@ unset($__errorArgs, $__bag); ?><!--[if ENDBLOCK]><![endif]-->
                                 <div class="flip-card-front w-full h-full absolute bg-gray-100 dark:bg-gray-700 flex items-center justify-center backface-hidden">
                                     <!--[if BLOCK]><![endif]--><?php if($pieceIdentiteRectoUrl): ?>
                                         <img src="<?php echo e($pieceIdentiteRectoUrl); ?>" alt="Pièce d'Identité Recto"
-                                             class="object-contain max-h-full max-w-full cursor-pointer"
+                                             class="object-contain max-h-full max-w-full cursor-pointer p-2"
                                              @click="
-                                            isFlipping = true;
-                                            $wire.togglePieceIdentite();
-                                            setTimeout(() => { isFlipping = false; }, 600);
-                                        ">
+                                        isFlipping = true;
+                                        $wire.togglePieceIdentite();
+                                        setTimeout(() => { isFlipping = false; }, 600);
+                                    ">
                                         <span class="absolute bottom-2 text-xs text-gray-600 dark:text-gray-300">Recto (cliquez pour Verso)</span>
                                     <?php else: ?>
-                                        <p class="text-gray-500 dark:text-gray-400">Aucun Recto disponible</p>
+                                        <p class="text-gray-500 dark:text-gray-400 text-sm">Aucun Recto disponible</p>
                                     <?php endif; ?><!--[if ENDBLOCK]><![endif]-->
                                 </div>
 
@@ -447,15 +459,15 @@ unset($__errorArgs, $__bag); ?><!--[if ENDBLOCK]><![endif]-->
                                 <div class="flip-card-back w-full h-full absolute bg-gray-100 dark:bg-gray-700 flex items-center justify-center backface-hidden">
                                     <!--[if BLOCK]><![endif]--><?php if($pieceIdentiteVersoUrl): ?>
                                         <img src="<?php echo e($pieceIdentiteVersoUrl); ?>" alt="Pièce d'Identité Verso"
-                                             class="object-contain max-h-full max-w-full cursor-pointer"
+                                             class="object-contain max-h-full max-w-full cursor-pointer p-2"
                                              @click="
-                                            isFlipping = true;
-                                            $wire.togglePieceIdentite();
-                                            setTimeout(() => { isFlipping = false; }, 600);
-                                        ">
+                                        isFlipping = true;
+                                        $wire.togglePieceIdentite();
+                                        setTimeout(() => { isFlipping = false; }, 600);
+                                    ">
                                         <span class="absolute bottom-2 text-xs text-gray-600 dark:text-gray-300">Verso (cliquez pour Recto)</span>
                                     <?php else: ?>
-                                        <p class="text-gray-500 dark:text-gray-400">Aucun Verso disponible</p>
+                                        <p class="text-gray-500 dark:text-gray-400 text-sm">Aucun Verso disponible</p>
                                     <?php endif; ?><!--[if ENDBLOCK]><![endif]-->
                                 </div>
                             </div>
@@ -464,21 +476,21 @@ unset($__errorArgs, $__bag); ?><!--[if ENDBLOCK]><![endif]-->
 
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Code QR de mon Matricule</label>
-                        <div class="p-4 bg-white dark:bg-gray-700 rounded-lg shadow-inner flex items-center justify-center">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Code QR de mon Matricule</label>
+                        <div class="p-4 bg-white dark:bg-gray-700 rounded-lg shadow-xl flex items-center justify-center">
                             <!--[if BLOCK]><![endif]--><?php if($matricule): ?>
                                 <?php echo QrCode::size(150)->generate($matricule); ?>
 
                             <?php else: ?>
-                                <p class="text-gray-500 dark:text-gray-400">Matricule non disponible pour QR Code.</p>
+                                <p class="text-gray-500 dark:text-gray-400 text-sm">Matricule non disponible pour QR Code.</p>
                             <?php endif; ?><!--[if ENDBLOCK]><![endif]-->
                         </div>
-                        <p class="text-center text-sm text-gray-500 dark:text-gray-400 mt-2">Matricule: <?php echo e($matricule); ?></p>
+                        <p class="text-center text-base text-gray-500 dark:text-gray-400 mt-2">Matricule: <span class="font-bold"><?php echo e($matricule); ?></span></p>
                     </div>
                 </div>
             </div>
         <?php else: ?>
-            <div class="text-center text-gray-500 dark:text-gray-400">
+            <div class="text-center text-gray-500 dark:text-gray-400 py-8 text-lg">
                 Impossible de charger votre profil. Veuillez vous reconnecter.
             </div>
         <?php endif; ?><!--[if ENDBLOCK]><![endif]-->

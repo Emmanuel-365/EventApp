@@ -51,6 +51,7 @@ class AuthController extends Controller
 
         if ($admin && Hash::check($request->input('password'), $admin->password)) {
             Auth::guard('admin')->login($admin);
+            $request->session()->regenerate();
             return redirect()->route('admin.profileView');
         } else {
             return back()->with(['error' => 'Mot de passe incorrect'], 401);

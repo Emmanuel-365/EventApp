@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('organizers', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->string('id')->primary();
+            $table->string('global_id')->nullable()->unique();
             $table->uuid('matricule')->unique();
             $table->string('nom');
             $table->string('prenom');

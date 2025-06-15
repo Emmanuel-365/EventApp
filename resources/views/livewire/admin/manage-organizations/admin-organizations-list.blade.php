@@ -1,6 +1,6 @@
 <div class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
     <h2 class="text-3xl font-extrabold text-gray-900 dark:text-gray-100 mb-8 text-center">
-        Gestion des Organisations  @if($organizer !== null) de  M/Mme {{$organizer->nom . $organizer->prenom}} @endif
+        Gestion des Organisations  @if($organizer !== null) de  M/Mme {{$organizer->nom .' '. $organizer->prenom}} @endif
     </h2>
 
     {{-- Messages de session --}}

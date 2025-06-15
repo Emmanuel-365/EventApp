@@ -12,6 +12,7 @@ use Stancl\Tenancy\Database\Models\Tenant as BaseTenant;
 use Stancl\Tenancy\Contracts\TenantWithDatabase;
 use Stancl\Tenancy\Database\Concerns\HasDatabase;
 use Stancl\Tenancy\Database\Concerns\HasDomains;
+use Stancl\Tenancy\Database\Models\TenantPivot;
 
 class Organization extends BaseTenant implements TenantWithDatabase
 {
@@ -44,6 +45,11 @@ class Organization extends BaseTenant implements TenantWithDatabase
     ];
 
 
+    public function users()
+    {
+        return $this->belongsToMany(Organization::class, 'organization_organizer', 'organization_id', 'organizer_id', 'id', 'global_id')
+            ->using(TenantPivot::class);
+    }
     /**
      * Get the names of the columns that should be managed by Stancl/Tenancy
      * as custom tenant columns, not stored in the 'data' JSON column.

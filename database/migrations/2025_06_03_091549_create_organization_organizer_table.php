@@ -14,13 +14,14 @@ return new class extends Migration
     {
         Schema::create('organization_organizer', function (Blueprint $table) {
 
-            $table->id();
+            $table->increments('id');
+            $table->string('organization_id');
+            $table->string('organizer_id');
 
-            $table->uuid('organization_id');
-            $table->foreign('organization_id')->references('id')->on('organizations')->onDelete('cascade');
+            /** $table->unique(['organization_id', 'organizer_id']); */
 
-            $table->uuid('organizer_id');
-            $table->foreign('organizer_id')->references('id')->on('organizers')->onDelete('cascade');
+            $table->foreign('organization_id')->references('id')->on('organizations')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('organizer_id')->references('global_id')->on('organizers')->onUpdate('cascade')->onDelete('cascade');
 
         });
     }

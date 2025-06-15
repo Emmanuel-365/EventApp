@@ -114,80 +114,89 @@
 
                     {{-- Matricule (Always Read-Only) --}}
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Matricule</label>
-                        <p class="form-display-text">{{ $matricule }}</p>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Matricule</label>
+                        {{-- Updated display text styling --}}
+                        <p class="form-display-text px-4 py-2 text-base bg-gray-100 dark:bg-gray-700 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-200">{{ $matricule }}</p>
                     </div>
 
                     {{-- Profile Verification Status (Always Read-Only) --}}
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Statut de Vérification du Profil</label>
-                        <p class="form-display-text">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Statut de Vérification du Profil</label>
+                        {{-- Updated display text styling --}}
+                        <p class="form-display-text px-4 py-2 text-base bg-gray-100 dark:bg-gray-700 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-200">
                             {{ $organizer->profile_verification_status  }}
                         </p>
                     </div>
 
                     @if ($organizer->profile_verification_status !== 'en attente')
                         {{-- Read-Only Display for Accepted Profile --}}
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nom:</label>
-                        <p class="form-display-text">{{ $organizer->nom }}</p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Prénom:</label>
-                        <p class="form-display-text">{{ $organizer->prenom }}</p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email:</label>
-                        <p class="form-display-text">{{ $organizer->email }}</p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Téléphone:</label>
-                        <p class="form-display-text">{{ $organizer->telephone }}</p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Pays:</label>
-                        <p class="form-display-text">{{ $organizer->pays }}</p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ville:</label>
-                        <p class="form-display-text">{{ $organizer->ville }}</p>
-                    </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nom:</label>
+                            {{-- Updated display text styling --}}
+                            <p class="form-display-text px-4 py-2 text-base bg-gray-100 dark:bg-gray-700 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-200">{{ $organizer->nom }}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Prénom:</label>
+                            {{-- Updated display text styling --}}
+                            <p class="form-display-text px-4 py-2 text-base bg-gray-100 dark:bg-gray-700 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-200">{{ $organizer->prenom }}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email:</label>
+                            {{-- Updated display text styling --}}
+                            <p class="form-display-text px-4 py-2 text-base bg-gray-100 dark:bg-gray-700 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-200">{{ $organizer->email }}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Téléphone:</label>
+                            {{-- Updated display text styling --}}
+                            <p class="form-display-text px-4 py-2 text-base bg-gray-100 dark:bg-gray-700 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-200">{{ $organizer->telephone }}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Pays:</label>
+                            {{-- Updated display text styling --}}
+                            <p class="form-display-text px-4 py-2 text-base bg-gray-100 dark:bg-gray-700 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-200">{{ $organizer->pays }}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Ville:</label>
+                            {{-- Updated display text styling --}}
+                            <p class="form-display-text px-4 py-2 text-base bg-gray-100 dark:bg-gray-700 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-200">{{ $organizer->ville }}</p>
+                        </div>
                     @else
                         {{-- Editable Form for Pending Profile --}}
                         <form wire:submit.prevent="saveProfile" class="col-span-full grid grid-cols-1 sm:grid-cols-2 gap-6">
                             <div>
-                                <label for="nom" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nom:</label>
+                                <label for="nom" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nom:</label>
                                 <input type="text" id="nom" wire:model.live="nom"
-                                       class="form-input w-full rounded-md shadow-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:ring-blue-500 focus:border-blue-500">
+                                       class="form-input w-full px-4 py-2 text-base rounded-lg shadow-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                 @error('nom') <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
                             </div>
                             <div>
-                                <label for="prenom" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Prénom:</label>
+                                <label for="prenom" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Prénom:</label>
                                 <input type="text" id="prenom" wire:model.live="prenom"
-                                       class="form-input w-full rounded-md shadow-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:ring-blue-500 focus:border-blue-500">
+                                       class="form-input w-full px-4 py-2 text-base rounded-lg shadow-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                 @error('prenom') <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
                             </div>
                             {{-- Email field is now editable for pending profiles --}}
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email:</label>
-                                <p class="form-display-text">{{ $organizer->email }}</p>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email:</label>
+                                {{-- This still uses a <p> tag, if it should be editable, change it to an <input> --}}
+                                <p class="form-display-text px-4 py-2 text-base bg-gray-100 dark:bg-gray-700 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-200">{{ $organizer->email }}</p>
                             </div>
                             <div>
-                                <label for="telephone" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Téléphone:</label>
+                                <label for="telephone" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Téléphone:</label>
                                 <input type="text" id="telephone" wire:model.live="telephone"
-                                       class="form-input w-full rounded-md shadow-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:ring-blue-500 focus:border-blue-500">
+                                       class="form-input w-full px-4 py-2 text-base rounded-lg shadow-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                 @error('telephone') <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
                             </div>
                             <div>
-                                <label for="pays" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Pays:</label>
+                                <label for="pays" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Pays:</label>
                                 <input type="text" id="pays" wire:model.live="pays"
-                                       class="form-input w-full rounded-md shadow-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:ring-blue-500 focus:border-blue-500">
+                                       class="form-input w-full px-4 py-2 text-base rounded-lg shadow-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                 @error('pays') <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
                             </div>
                             <div>
-                                <label for="ville" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ville:</label>
+                                <label for="ville" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Ville:</label>
                                 <input type="text" id="ville" wire:model.live="ville"
-                                       class="form-input w-full rounded-md shadow-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:ring-blue-500 focus:border-blue-500">
+                                       class="form-input w-full px-4 py-2 text-base rounded-lg shadow-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                 @error('ville') <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
                             </div>
 
@@ -227,7 +236,7 @@
                                         <div class="mt-4 flex justify-center items-center">
                                             <img src="{{ $photoProfilPreview }}" class="h-32 w-32 object-cover rounded-full shadow-md" alt="Preview Photo de Profil">
                                             <button type="button" wire:click="$set('photoProfil', null); $set('photoProfilPreview', null);" class="ml-2 text-red-600 hover:text-red-800 self-start">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
                                                     <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm6 0a1 1 0 01-2 0v6a1 1 0 112 0V8z" clip-rule="evenodd" />
                                                 </svg>
                                             </button>
@@ -264,9 +273,9 @@
                                     @error('pieceIdentiteRecto') <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
                                     @if ($pieceIdentiteRectoPreview)
                                         <div class="mt-4 flex justify-center items-center">
-                                            <img src="{{ $pieceIdentiteRectoPreview }}" class="h-48 w-full object-contain shadow-md" alt="Preview Pièce d'Identité Recto">
+                                            <img src="{{ $pieceIdentiteRectoPreview }}" class="h-48 w-full object-contain shadow-md rounded-md" alt="Preview Pièce d'Identité Recto">
                                             <button type="button" wire:click="$set('pieceIdentiteRecto', null); $set('pieceIdentiteRectoPreview', null);" class="ml-2 text-red-600 hover:text-red-800 self-start">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
                                                     <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm6 0a1 1 0 01-2 0v6a1 1 0 112 0V8z" clip-rule="evenodd" />
                                                 </svg>
                                             </button>
@@ -303,9 +312,9 @@
                                     @error('pieceIdentiteVerso') <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
                                     @if ($pieceIdentiteVersoPreview)
                                         <div class="mt-4 flex justify-center items-center">
-                                            <img src="{{ $pieceIdentiteVersoPreview }}" class="h-48 w-full object-contain shadow-md" alt="Preview Pièce d'Identité Verso">
+                                            <img src="{{ $pieceIdentiteVersoPreview }}" class="h-48 w-full object-contain shadow-md rounded-md" alt="Preview Pièce d'Identité Verso">
                                             <button type="button" wire:click="$set('pieceIdentiteVerso', null); $set('pieceIdentiteVersoPreview', null);" class="ml-2 text-red-600 hover:text-red-800 self-start">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
                                                     <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm6 0a1 1 0 01-2 0v6a1 1 0 112 0V8z" clip-rule="evenodd" />
                                                 </svg>
                                             </button>
@@ -317,7 +326,7 @@
                             {{-- Save Button --}}
                             <div class="col-span-full flex justify-end mt-8">
                                 <button type="submit"
-                                        class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-blue-700 dark:hover:bg-blue-600 dark:focus:ring-600 transition-colors duration-200">
+                                        class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-blue-700 dark:hover:bg-blue-600 dark:focus:ring-600 transition-colors duration-200 text-base">
                                     Enregistrer les modifications
                                 </button>
                             </div>
@@ -325,22 +334,25 @@
                     @endif {{-- End of conditional for editable/read-only personal info --}}
 
                     {{-- Password/Passcode info fields (Always display, read-only) --}}
-                    {{-- These are correctly placed outside the if/else for personal info in the user's provided code, good. --}}
                     <div class="sm:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Mot de Passe</label>
-                        <p class="form-display-text">{{ $organizer->password ? 'Défini' : 'Non défini' }}</p>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Mot de Passe</label>
+                        {{-- Updated display text styling --}}
+                        <p class="form-display-text px-4 py-2 text-base bg-gray-100 dark:bg-gray-700 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-200">{{ $organizer->password ? 'Défini' : 'Non défini' }}</p>
                     </div>
                     <div class="sm:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Dernier changement mot de passe</label>
-                        <p class="form-display-text">{{ $passwordChangedAt }}</p>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Dernier changement mot de passe</label>
+                        {{-- Updated display text styling --}}
+                        <p class="form-display-text px-4 py-2 text-base bg-gray-100 dark:bg-gray-700 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-200">{{ $passwordChangedAt }}</p>
                     </div>
                     <div class="sm:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Passcode</label>
-                        <p class="form-display-text">{{ $hasPasscode ? 'Défini' : 'Non défini' }}</p>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Passcode</label>
+                        {{-- Updated display text styling --}}
+                        <p class="form-display-text px-4 py-2 text-base bg-gray-100 dark:bg-gray-700 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-200">{{ $hasPasscode ? 'Défini' : 'Non défini' }}</p>
                     </div>
                     <div class="sm:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Dernière réinitialisation Passcode</label>
-                        <p class="form-display-text">{{ $passcodeResetDate }}</p>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Dernière réinitialisation Passcode</label>
+                        {{-- Updated display text styling --}}
+                        <p class="form-display-text px-4 py-2 text-base bg-gray-100 dark:bg-gray-700 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-200">{{ $passcodeResetDate }}</p>
                     </div>
                 </div>
 
@@ -348,12 +360,12 @@
                 <div class="md:col-span-1 space-y-6">
                     {{-- Photo de Profil Display --}}
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Photo de Profil</label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Photo de Profil</label>
                         <div class="flex items-center justify-center">
                             @if ($photoProfilUrl)
-                                <img src="{{ $photoProfilUrl }}" class="h-32 w-32 object-cover rounded-full shadow-md" alt="Photo de Profil">
+                                <img src="{{ $photoProfilUrl }}" class="h-32 w-32 object-cover rounded-full shadow-lg" alt="Photo de Profil">
                             @else
-                                <div class="h-32 w-32 bg-gray-200 dark:bg-gray-600 rounded-full flex items-center justify-center text-gray-500 dark:text-gray-300 text-5xl font-bold">
+                                <div class="h-32 w-32 bg-gray-200 dark:bg-gray-600 rounded-full flex items-center justify-center text-gray-500 dark:text-gray-300 text-5xl font-bold shadow-lg">
                                     {{ strtoupper(substr($prenom, 0, 1)) }}{{ strtoupper(substr($nom, 0, 1)) }}
                                 </div>
                             @endif
@@ -362,8 +374,8 @@
 
                     {{-- Pièces d'Identité (Recto/Verso) avec animation --}}
                     <div x-data="{ isFlipping: false }" class="relative perspective-1000">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Pièce d'Identité</label>
-                        <div class="flip-card w-full h-48 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-600">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Pièce d'Identité</label>
+                        <div class="flip-card w-full h-48 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-600 shadow-lg">
                             <div class="flip-card-inner w-full h-full relative"
                                  :style="$wire.showPieceIdentiteRecto ? 'transform: rotateY(0deg)' : 'transform: rotateY(180deg)'"
                                  :class="isFlipping ? 'transition-transform duration-600 ease-in-out' : ''">
@@ -372,15 +384,15 @@
                                 <div class="flip-card-front w-full h-full absolute bg-gray-100 dark:bg-gray-700 flex items-center justify-center backface-hidden">
                                     @if ($pieceIdentiteRectoUrl)
                                         <img src="{{ $pieceIdentiteRectoUrl }}" alt="Pièce d'Identité Recto"
-                                             class="object-contain max-h-full max-w-full cursor-pointer"
+                                             class="object-contain max-h-full max-w-full cursor-pointer p-2"
                                              @click="
-                                            isFlipping = true;
-                                            $wire.togglePieceIdentite();
-                                            setTimeout(() => { isFlipping = false; }, 600);
-                                        ">
+                                        isFlipping = true;
+                                        $wire.togglePieceIdentite();
+                                        setTimeout(() => { isFlipping = false; }, 600);
+                                    ">
                                         <span class="absolute bottom-2 text-xs text-gray-600 dark:text-gray-300">Recto (cliquez pour Verso)</span>
                                     @else
-                                        <p class="text-gray-500 dark:text-gray-400">Aucun Recto disponible</p>
+                                        <p class="text-gray-500 dark:text-gray-400 text-sm">Aucun Recto disponible</p>
                                     @endif
                                 </div>
 
@@ -388,15 +400,15 @@
                                 <div class="flip-card-back w-full h-full absolute bg-gray-100 dark:bg-gray-700 flex items-center justify-center backface-hidden">
                                     @if ($pieceIdentiteVersoUrl)
                                         <img src="{{ $pieceIdentiteVersoUrl }}" alt="Pièce d'Identité Verso"
-                                             class="object-contain max-h-full max-w-full cursor-pointer"
+                                             class="object-contain max-h-full max-w-full cursor-pointer p-2"
                                              @click="
-                                            isFlipping = true;
-                                            $wire.togglePieceIdentite();
-                                            setTimeout(() => { isFlipping = false; }, 600);
-                                        ">
+                                        isFlipping = true;
+                                        $wire.togglePieceIdentite();
+                                        setTimeout(() => { isFlipping = false; }, 600);
+                                    ">
                                         <span class="absolute bottom-2 text-xs text-gray-600 dark:text-gray-300">Verso (cliquez pour Recto)</span>
                                     @else
-                                        <p class="text-gray-500 dark:text-gray-400">Aucun Verso disponible</p>
+                                        <p class="text-gray-500 dark:text-gray-400 text-sm">Aucun Verso disponible</p>
                                     @endif
                                 </div>
                             </div>
@@ -405,20 +417,20 @@
 
                     {{-- QR Code de mon Matricule --}}
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Code QR de mon Matricule</label>
-                        <div class="p-4 bg-white dark:bg-gray-700 rounded-lg shadow-inner flex items-center justify-center">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Code QR de mon Matricule</label>
+                        <div class="p-4 bg-white dark:bg-gray-700 rounded-lg shadow-xl flex items-center justify-center">
                             @if ($matricule)
                                 {!! QrCode::size(150)->generate($matricule) !!}
                             @else
-                                <p class="text-gray-500 dark:text-gray-400">Matricule non disponible pour QR Code.</p>
+                                <p class="text-gray-500 dark:text-gray-400 text-sm">Matricule non disponible pour QR Code.</p>
                             @endif
                         </div>
-                        <p class="text-center text-sm text-gray-500 dark:text-gray-400 mt-2">Matricule: {{ $matricule }}</p>
+                        <p class="text-center text-base text-gray-500 dark:text-gray-400 mt-2">Matricule: <span class="font-bold">{{ $matricule }}</span></p>
                     </div>
                 </div>
             </div>
         @else
-            <div class="text-center text-gray-500 dark:text-gray-400">
+            <div class="text-center text-gray-500 dark:text-gray-400 py-8 text-lg">
                 Impossible de charger votre profil. Veuillez vous reconnecter.
             </div>
         @endif

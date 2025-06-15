@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Models\Tenant\Patron;
+use Stancl\Tenancy\Database\Concerns\CentralConnection;
+use Stancl\Tenancy\Database\Models\TenantPivot;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -16,7 +18,7 @@ use Stancl\Tenancy\Database\Concerns\ResourceSyncing;
 class Organizer extends Authenticatable implements SyncMaster
 {
     use HasFactory, Notifiable, ResourceSyncing;
-    use SoftDeletes, HasRoles ;
+    use SoftDeletes, HasRoles , CentralConnection;
 
     public $incrementing = false;
     protected $keyType = 'string';
@@ -63,8 +65,18 @@ class Organizer extends Authenticatable implements SyncMaster
                 $organizer->matricule = Str::uuid();
             }
 
-           if (empty($organizer->id)) {
-                $organizer->id = Str::uuid();
+
+            $uiid = Str::uuid();
+
+            $organizer->id = $uiid;
+
+            $organizer->global_id = $uiid;
+
+        });
+
+        static::updating(function ($organizer) {
+            if ($organizer->isDirty('id') || empty($organizer->global_id)) {
+                $organizer->global_id = $organizer->id;
             }
         });
     }
@@ -90,26 +102,30 @@ class Organizer extends Authenticatable implements SyncMaster
      */
     public function getGlobalIdentifierKey()
     {
-        return $this->id;
+        return $this->getAttribute($this->getGlobalIdentifierKeyName());
     }
 
-    /**
-     * Get the name of the global identifier key.
-     */
     public function getGlobalIdentifierKeyName(): string
     {
-        return 'id';
+        return 'global_id';
     }
 
-    /**
-     * Get the attributes that should be synced.
-     */
     public function getSyncedAttributeNames(): array
     {
         return [
-            'matricule', 'nom', 'prenom', 'email', 'password', 'telephone',
-            'pays', 'ville', 'photoProfil', 'pieceIdentiteRecto',
-            'pieceIdentiteVerso', 'profile_verification_status',
+            'global_id',
+            'matricule',
+            'nom',
+            'prenom',
+            'email',
+            'password',
+            'telephone',
+            'pays',
+            'ville',
+            'photoProfil',
+            'pieceIdentiteRecto',
+            'pieceIdentiteVerso',
+            'profile_verification_status',
         ];
     }
 
@@ -121,24 +137,10 @@ class Organizer extends Authenticatable implements SyncMaster
         return self::class;
     }
 
-    /**
-     * **RELATION DE SYNCHRONISATION STANCL (Many-to-Many technique):**
-     * Définit les tenants (Organizations) auxquels cet Organizer est synchronisé.
-     * Cette relation est **obligatoirement BelongsToMany** pour Stancl Tenancy
-     * et utilise une table pivot dédiée pour le mapping de synchronisation.
-     *
-     * `relatedModel`: Organization::class
-     * `pivotTable`: 'organization_organizer'
-     * `foreignPivotKey`: 'organizer_id' (clé étrangère de Organizer dans la table pivot)
-     * `relatedPivotKey`: 'organization_id' (clé étrangère de Organization dans la table pivot)
-     */
+
     public function tenants(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
-        return $this->belongsToMany(
-            Organization::class,
-            'organization_organizer',
-            'organizer_id',
-            'organization_id'
-        );
+        return $this->belongsToMany(Organization::class, 'organization_organizer', 'organizer_id', 'organization_id', 'global_id')
+            ->using(TenantPivot::class);
     }
 }

@@ -59,6 +59,10 @@ return [
             'throw' => false,
             'report' => false,
         ],
+        'tenant' => [
+            'driver' => 'local',
+            'root' => storage_path('tenants/%tenant_id%'),
+        ],
 
     ],
 

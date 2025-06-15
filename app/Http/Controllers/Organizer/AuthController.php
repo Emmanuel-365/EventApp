@@ -51,7 +51,7 @@ class AuthController extends Controller
 
         if ($organizer && Hash::check($request->input('password'), $organizer->password)) {
             Auth::guard('organizer')->login($organizer);
-            return redirect()->route('organization.organizer.profileView');
+            return  redirect()->route('organization.organizer.profileView');
         } else {
             return back()->with(['error' => 'Mot de passe incorrect'], 401);
         }

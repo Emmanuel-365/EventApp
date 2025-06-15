@@ -2,18 +2,18 @@
 
 namespace App\Models\Tenant;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 use Spatie\Permission\Traits\HasRoles;
-use Stancl\Tenancy\Database\Concerns\TenantConnection;
 
 class Employee extends Authenticatable
 {
     use HasFactory, Notifiable;
-    use SoftDeletes, HasRoles;
+    use SoftDeletes, HasRoles , HasUuids;
 
     protected $table = 'employees';
 

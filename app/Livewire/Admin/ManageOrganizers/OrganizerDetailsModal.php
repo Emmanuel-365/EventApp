@@ -8,7 +8,7 @@ use Livewire\Component;
 class OrganizerDetailsModal extends Component
 {
     public bool $show = false;
-    public ?int $organizerId = null;
+    public ?string $organizerId = null;
 
     protected $listeners = [
         'openOrganizerDetailsModal' => 'open',
@@ -16,8 +16,9 @@ class OrganizerDetailsModal extends Component
     ];
 
 
-    public function open(int $organizerId): void
+    public function open(string $organizerId): void
     {
+
         $this->organizerId = $organizerId;
         $this->show = true;
     }

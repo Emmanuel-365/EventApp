@@ -17,7 +17,7 @@ class OrganizersDataTable extends Component
     public string $sortDirection = 'desc';
     public int $perPage = 10;
 
-    public ?int $selectedOrganizerId;
+    public ?string $selectedOrganizerId;
     public bool $showDetailModal = false;
 
 
@@ -59,7 +59,7 @@ class OrganizersDataTable extends Component
         $this->resetPage();
     }
 
-    public function selectOrganizer(int $organizerId): void
+    public function selectOrganizer(string $organizerId): void
     {
         $adminUser = Auth::guard('admin')->user();
         if (!$adminUser || !$adminUser->can('see-organizer-profile')) {
@@ -68,7 +68,7 @@ class OrganizersDataTable extends Component
         }
         $this->selectedOrganizerId = $organizerId;
         $this->showDetailModal = true;
-        $this->dispatch('openOrganizerDetail', organizerId: $organizerId);
+        $this->dispatch('openOrganizerDetailsModal' , organizerId: $this->selectedOrganizerId );
     }
 
     public function closeDetailModal(): void

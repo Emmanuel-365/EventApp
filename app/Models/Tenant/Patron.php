@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Str;
 use Spatie\Permission\Traits\HasRoles;
 
 use Stancl\Tenancy\Contracts\Syncable;
@@ -32,7 +31,7 @@ class Patron extends Authenticatable implements Syncable
         'pieceIdentiteRecto',
         'pieceIdentiteVerso',
         'profile_verification_status',
-        'organizer_global_id',
+        'global_id',
     ];
 
     protected $hidden = [
@@ -48,20 +47,6 @@ class Patron extends Authenticatable implements Syncable
 
     protected $keyType = 'string';
     public $incrementing = false;
-
-    protected static function boot(): void
-    {
-        parent::boot();
-
-        static::creating(function ($patron) {
-
-            if (empty($patron->matricule)) {
-                $patron->matricule = (string) Str::uuid();
-            }
-        });
-    }
-
-
     /**
      * Get the central model class this resource syncs from.
      */
@@ -75,15 +60,12 @@ class Patron extends Authenticatable implements Syncable
      */
     public function getGlobalIdentifierKey()
     {
-        return $this->organizer_global_id;
+        return $this->getAttribute($this->getGlobalIdentifierKeyName());
     }
 
-    /**
-     * Get the name of the global identifier key.
-     */
     public function getGlobalIdentifierKeyName(): string
     {
-        return 'organizer_global_id';
+        return 'global_id';
     }
 
     /**
@@ -92,6 +74,7 @@ class Patron extends Authenticatable implements Syncable
     public function getSyncedAttributeNames(): array
     {
         return [
+            'global_id',
             'matricule',
             'nom',
             'prenom',

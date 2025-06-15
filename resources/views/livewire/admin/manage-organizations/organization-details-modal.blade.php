@@ -69,20 +69,20 @@
                         </p>
                     </div>
                     @if ($organization->organizer)
-                        @if ($organization->organizer)
                             <div>
                                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Organisateur:</p>
-                                <p class="text-base text-gray-900 dark:text-gray-100">
-                                    <a href="#"
-                                       wire:click.prevent="$dispatch('openOrganizerDetailsModal', { organizerId: {{ $organization->organizer->id }} })"
-                                       class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-semibold underline transition-colors duration-150">
+                                <p class="text-base text-gray-900 dark:text-gray-100" >
+                                    <button wire:click="showOrganizer('{{$organization->organizer->id}}')"
+                                        class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-semibold underline transition-colors duration-150">
                                         {{ $organization->organizer->nom ?? 'N/A' }} {{ $organization->organizer->prenom ?? '' }}
-                                    </a>
+                                    </button>
                                 </p>
                             </div>
-                        @endif
 
-                        @livewire('admin.manage-organizers.organizer-details-modal')
+                            @if($showDetailModal)
+                                @livewire('admin.manage-organizers.organizer-details-modal' ,  ['organizerId' => $selectedOrganizerId], key($selectedOrganizerId))
+                            @endif
+
                     @endif
                 </div>
 

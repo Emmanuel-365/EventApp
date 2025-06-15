@@ -48,7 +48,11 @@ return [
         ],
         'root_override' => [
             'local' => '%storage_path%/app/',
-            'public' => '%storage_path%/app/public/',
+            //'public' => '%storage_path%/app/public/',
+            'public' => '%storage_path%/tenant%tenant_id%/app/public',
+            //'public' => '%storage_path%/app/tenant%tenant_id%/public',
+
+
         ],
         'suffix_storage_path' => true,
         'asset_helper_tenancy' => true,
@@ -61,6 +65,7 @@ return [
 
     'features' => [
         Stancl\Tenancy\Features\TenantConfig::class,
+        Stancl\Tenancy\Features\UniversalRoutes::class,
     ],
 
     'routes' => true,
@@ -80,21 +85,11 @@ return [
         'organizers_as_patrons' => [
             'central_model' => \App\Models\Organizer::class,
             'tenant_model' => \App\Models\Tenant\Patron::class,
-            'columns' => [
-                'matricule',
-                'nom',
-                'prenom',
-                'email',
-                'password',
-                'telephone',
-                'pays',
-                'ville',
-                'photoProfil',
-                'pieceIdentiteRecto',
-                'pieceIdentiteVerso',
-                'profile_verification_status',
-            ],
             'queueable' => true,
         ],
+    ],
+
+    'exempt_from_tenant_features' => [
+        'sessions', // Ceci indique à Stancl de ne pas toucher à la table 'sessions'
     ],
 ];

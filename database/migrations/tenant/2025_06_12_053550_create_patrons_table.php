@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('patrons', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('matricule')->unique();
-            $table->uuid('organizer_global_id')->unique()->nullable();
+            $table->uuid('global_id')->unique()->nullable();
             $table->string('nom');
             $table->string('prenom');
-            $table->string('email')->unique()->nullable();
+            $table->string('email')->nullable()->unique();
             $table->string('password')->nullable();
             $table->timestamp('password_changed_at')->nullable();
             $table->string('passcode')->nullable();
