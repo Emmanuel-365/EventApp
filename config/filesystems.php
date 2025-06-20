@@ -64,6 +64,13 @@ return [
             'root' => storage_path('tenants/%tenant_id%'),
         ],
 
+        'public_tenant' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public_tenant'), // ou storage_path('app/public/tenant_data')
+            'url' => env('APP_URL').'/storage/public_tenant', // Assurez-vous que /storage/public_tenant est lié
+            'visibility' => 'public',
+        ],
+
     ],
 
     /*

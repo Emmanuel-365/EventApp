@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use Stancl\Tenancy\Resolvers;
 use App\Listeners\DebugUpdateSyncedResource;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Log;
@@ -18,6 +19,7 @@ use Stancl\Tenancy\Jobs;
 use Stancl\Tenancy\Listeners;
 use Stancl\Tenancy\Middleware;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
+use Stancl\Tenancy\Resolvers\DomainTenantResolver;
 
 class TenancyServiceProvider extends ServiceProvider
 {
@@ -132,6 +134,17 @@ class TenancyServiceProvider extends ServiceProvider
         });
 
         FilePreviewController::$middleware = ['web', 'universal', InitializeTenancyByDomain::class];
+
+        // TenancyServiceProvider::boot()
+
+
+        // enable cache
+        DomainTenantResolver::$shouldCache = true;
+        // seconds, 3600 is the default value
+        DomainTenantResolver::$cacheTTL = 3600;
+        // specify some cache store
+        // null resolves to the default cache store
+        DomainTenantResolver::$cacheStore = 'redis';
 
 
     }

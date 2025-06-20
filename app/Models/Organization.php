@@ -108,8 +108,9 @@ class Organization extends BaseTenant implements TenantWithDatabase
 
     public function events(): HasMany
     {
-        return $this->hasMany(Event::class);
+        return $this->hasMany(CentralEvent::class);
     }
+
 
 
 

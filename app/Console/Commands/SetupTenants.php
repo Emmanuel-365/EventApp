@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Organization;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Stancl\Tenancy\Jobs\CreateDatabase;
 use Stancl\Tenancy\Jobs\MigrateDatabase;
@@ -41,26 +42,19 @@ class SetupTenants extends Command
             // Créer les répertoires de stockage pour le tenant
             $this->info("Creating storage directories for tenant: {$tenantId}...");
             try {
-                tenancy()->initialize($tenant); // Initialiser le contexte du tenant
-                $directories = [
-                    'framework/cache',
-                    'framework/sessions',
-                    'framework/views',
-                    'livewire-tmp',
+                tenancy()->initialize($tenant);
+
+                $paths = [
+                    storage_path("tenant{$tenantId}/framework/cache"),
+                    storage_path("tenant{$tenantId}/framework/sessions"),
+                    storage_path("tenant{$tenantId}/framework/views"),
                 ];
 
-                foreach ($directories as $dir) {
-                    if (!Storage::disk('tenant')->exists($dir)) {
-                        Storage::disk('tenant')->makeDirectory($dir);
-                        $this->info("✅ Created directory: {$dir}");
-                    } else {
-                        $this->info("Directory already exists: {$dir}");
-                    }
+                foreach ($paths as $path) {
+                    File::ensureDirectoryExists($path);
                 }
 
-                // Vérifier le chemin du disque tenant
-                $tenantPath = Storage::disk('tenant')->path('');
-                $this->info("Tenant storage path: {$tenantPath}");
+                $this->info("Tenant storage path for: {$tenant}");
             } catch (\Exception $e) {
                 $this->error("❌ Failed to create storage directories: " . $e->getMessage());
                 continue;

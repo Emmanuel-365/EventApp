@@ -56,6 +56,23 @@ class TenantPermissionsSeeder extends Seeder
                 'guard_name' => 'employee',
             ],
 
+            /** PERMISSIONS ADMIN LIEES AUX TICKETS */
+
+            [
+                'name' => 'see-tickets',
+                'categorie' => 'tickets',
+                'guard_name' => 'employee',
+            ],
+            [
+                'name' => 'refund-tickets',
+                'categorie' => 'tickets',
+                'guard_name' => 'employee',
+            ],
+            [
+                'name' => 'verify-tickets',
+                'categorie' => 'tickets',
+                'guard_name' => 'employee',
+            ],
         ];
 
         foreach ($permissions as $perm) {

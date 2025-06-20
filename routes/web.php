@@ -131,7 +131,6 @@ foreach (config('tenancy.central_domains') as $domain) {
         /** ROUTES  ORGANIZATION */
 
         Route::name('organization.')
-            ->prefix('organization')
             ->group(function (){
 
 

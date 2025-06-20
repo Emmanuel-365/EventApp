@@ -13,6 +13,7 @@ class Admin extends Authenticatable
 {
     use HasFactory  , Notifiable , SoftDeletes, HasRoles ;
 
+
     protected $fillable = [
         'matricule',
         'nom',
