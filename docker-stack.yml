@@ -1,0 +1,315 @@
+version: '3.8'
+
+# Important: This is a conceptual Docker Swarm stack file.
+# You MUST adapt it for your specific environment, including:
+# 1. Pushing your application image to a Docker registry.
+# 2. Creating Docker secrets and configs in your Swarm.
+# 3. Setting up appropriate volume drivers for persistent storage (db, redis, tenant files)
+#    or using managed services.
+# 4. Configuring an Ingress controller (e.g., Traefik) for domain handling and SSL.
+# 5. Adjusting migration/initialization strategy (e.g., one-off tasks).
+
+networks:
+  app-network: # Changed name to be more generic for stack
+    driver: overlay
+    attachable: true # Allows one-off tasks to connect easily
+
+volumes:
+  # For Swarm, you need to use volume drivers that support multi-node access
+  # or use managed services. These are placeholders.
+  db-data:
+    # driver: your-swarm-compatible-storage-driver
+    # driver_opts:
+    #   foo: bar
+    name: ${APP_NAME:-myapp}_db_data # Ensure volume name is unique if needed
+  redis-data:
+    # driver: your-swarm-compatible-storage-driver
+    name: ${APP_NAME:-myapp}_redis_data
+
+secrets:
+  # These secrets must be created in Docker Swarm beforehand:
+  # echo "your_actual_app_key" | docker secret create app_key -
+  # echo "your_actual_db_password" | docker secret create db_password -
+  # echo "your_actual_db_root_password" | docker secret create db_root_password -
+  # ... add other secrets as needed (mail, aws, etc.)
+  app_key:
+    external: true
+  db_password: # Password for the application user (e.g., 'sail' or your app user)
+    external: true
+  db_root_password: # MySQL root password
+    external: true
+  # Example for mail password if using actual SMTP
+  # mail_password:
+  #   external: true
+
+configs:
+  # This config must be created in Docker Swarm beforehand:
+  # docker config create nginx_config ./docker/nginx/default.conf
+  # Note: The Nginx config might need adjustments for Swarm (e.g., upstream service names)
+  nginx_config:
+    external: true
+  # You might also create configs for php.ini settings:
+  # php_custom_ini:
+  #   external: true
+
+services:
+  app:
+    image: your-registry/your-app:${APP_VERSION:-latest} # REPLACE with your actual image
+    hostname: '{{.Service.Name}}-{{.Task.Slot}}'
+    environment:
+      APP_NAME: "${APP_NAME:-MySwarmApp}"
+      APP_ENV: production
+      APP_DEBUG: "false" # Should be false in production
+      APP_URL: "https://${CENTRAL_DOMAIN:-yourcentraldomain.com}" # Your main app domain
+      APP_KEY_FILE: /run/secrets/app_key # Path to secret
+      LOG_CHANNEL: stderr # Recommended for Docker Swarm logging
+
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: "${DB_DATABASE:-laravel_central}"
+      DB_USERNAME: "${DB_USERNAME:-sail}" # Or your app's DB user
+      DB_PASSWORD_FILE: /run/secrets/db_password # Path to secret
+
+      # Stancl/Tenancy uses the DB_CONNECTION above to manage tenants.
+      # Ensure the user defined by DB_USERNAME has rights to create databases.
+      # The DB_PASSWORD_FILE will provide its password.
+
+      CACHE_STORE: redis
+      SESSION_DRIVER: redis
+      QUEUE_CONNECTION: redis
+
+      REDIS_HOST: redis
+      REDIS_PASSWORD: null # Or use a secret if Redis is password-protected
+      REDIS_PORT: 6379
+
+      # MAIL_MAILER: smtp
+      # MAIL_HOST: your_smtp_host
+      # MAIL_PORT: 587
+      # MAIL_USERNAME: your_smtp_username
+      # MAIL_PASSWORD_FILE: /run/secrets/mail_password # If using secret for mail
+      # MAIL_ENCRYPTION: tls
+      # MAIL_FROM_ADDRESS: "noreply@${CENTRAL_DOMAIN:-yourcentraldomain.com}"
+      # MAIL_FROM_NAME: "${APP_NAME}"
+
+      # VITE_ASSET_URL: "${APP_URL}/build" # If assets are served by Nginx
+      # VITE_ORIGIN_URL: null # Not used if assets are pre-built
+
+      # Entrypoint script behavior - these might be handled differently in Swarm (e.g. one-off tasks)
+      OPTIMIZE_APP: "false" # Optimizations should be in the image
+      SETUP_TENANTS_ON_STARTUP: "false" # Manage via one-off tasks or deployment scripts
+      AUTO_MIGRATE_TENANTS: "false" # Manage via one-off tasks
+
+      # For filesystem tenancy if using S3 (recommended for Swarm)
+      # FILESYSTEM_DISK: s3
+      # AWS_ACCESS_KEY_ID: (use secrets or instance profile)
+      # AWS_SECRET_ACCESS_KEY: (use secrets or instance profile)
+      # AWS_DEFAULT_REGION: your_region
+      # AWS_BUCKET: your_bucket_name
+      # AWS_USE_PATH_STYLE_ENDPOINT: (false or true)
+    secrets:
+      - app_key
+      - db_password
+      # - mail_password # If used
+    # configs:
+    #   - source: php_custom_ini
+    #     target: /usr/local/etc/php/conf.d/zz-custom.ini
+    networks:
+      - app-network
+    depends_on:
+      - db
+      - redis
+    deploy:
+      mode: replicated
+      replicas: "${APP_REPLICAS:-2}" # Number of app instances
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: start-first
+      restart_policy:
+        condition: on-failure
+      # labels:
+      #   - "traefik.enable=true" # Example for Traefik Ingress
+      #   - "traefik.http.services.${APP_NAME:-myapp}-app.loadbalancer.server.port=9000" # If Traefik talks to FPM directly
+      # Placement constraints if needed (e.g., node labels)
+      # placement:
+      #   constraints:
+      #     - node.role == worker
+
+  web:
+    image: nginx:alpine
+    ports:
+      # Only expose ports on the Ingress point, not directly on each Nginx instance usually.
+      # Your Ingress (e.g., Traefik on port 80/443) would route to this service.
+      # If Nginx is your Ingress, then map ports here:
+      # - "${APP_PORT:-80}:80"
+      # - "${APP_SSL_PORT:-443}:443"
+    configs:
+      - source: nginx_config
+        target: /etc/nginx/conf.d/default.conf
+    # If Nginx serves static assets directly from a shared volume (not common if assets in app image)
+    # volumes:
+    #   - public-assets:/var/www/html/public:ro # Requires a shared volume for public assets
+    networks:
+      - app-network
+    depends_on:
+      - app
+    deploy:
+      mode: replicated
+      replicas: "${WEB_REPLICAS:-1}" # Can be scaled based on need, often 1 if Traefik handles LB to app
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+      # labels: # Example for Traefik if Nginx is a separate service behind Traefik
+      #   - "traefik.enable=true"
+      #   - "traefik.http.routers.${APP_NAME:-myapp}-web.rule=Host(`${CENTRAL_DOMAIN:-yourcentraldomain.com}`)" # Central domain
+      #   - "traefik.http.routers.${APP_NAME:-myapp}-web.entrypoints=websecure"
+      #   - "traefik.http.routers.${APP_NAME:-myapp}-web.tls.certresolver=myresolver"
+      #   - "traefik.http.services.${APP_NAME:-myapp}-web.loadbalancer.server.port=80" # Nginx internal port
+
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/db_root_password
+      MYSQL_DATABASE: "${DB_DATABASE:-laravel_central}"
+      MYSQL_USER: "${DB_USERNAME:-sail}"
+      MYSQL_PASSWORD_FILE: /run/secrets/db_password
+    volumes:
+      - db-data:/var/lib/mysql # This needs a Swarm-compatible volume driver for HA
+    secrets:
+      - db_root_password
+      - db_password
+    networks:
+      - app-network
+    deploy:
+      mode: replicated
+      replicas: 1 # Typically 1 for a single DB, HA needs external solution or Galera/NDB Cluster
+      placement:
+        constraints: [node.labels.db_node == true] # Example: run DB on a specific node/type
+      restart_policy:
+        condition: on-failure
+
+  redis:
+    image: redis:alpine
+    volumes:
+      - redis-data:/data # Needs Swarm-compatible volume driver for persistence if not just cache
+    networks:
+      - app-network
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  queue:
+    image: your-registry/your-app:${APP_VERSION:-latest} # Must be same as app service
+    hostname: '{{.Service.Name}}-{{.Task.Slot}}'
+    command: php artisan queue:work --verbose --tries=3 --timeout=90
+    environment: # Inherit or redefine necessary ENVs from 'app' service
+      APP_NAME: "${APP_NAME:-MySwarmApp}_Queue"
+      APP_ENV: production
+      APP_DEBUG: "false"
+      APP_KEY_FILE: /run/secrets/app_key
+      LOG_CHANNEL: stderr
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_DATABASE: "${DB_DATABASE:-laravel_central}"
+      DB_USERNAME: "${DB_USERNAME:-sail}"
+      DB_PASSWORD_FILE: /run/secrets/db_password
+      CACHE_STORE: redis
+      SESSION_DRIVER: redis # Though queue workers might not need sessions
+      QUEUE_CONNECTION: redis
+      REDIS_HOST: redis
+    secrets:
+      - app_key
+      - db_password
+    networks:
+      - app-network
+    depends_on:
+      - db
+      - redis
+    deploy:
+      mode: replicated
+      replicas: "${QUEUE_REPLICAS:-2}" # Scale as needed
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+
+  # Scheduler: Run as a global service on one manager node or a cron job task
+  # Option 1: Replicated service (only one should effectively run the cron logic)
+  scheduler:
+    image: your-registry/your-app:${APP_VERSION:-latest}
+    hostname: '{{.Service.Name}}-{{.Task.Slot}}'
+    command: |
+      bash -c "
+        echo 'Starting Laravel Scheduler...'
+        # This simple loop is not HA for scheduler.
+        # Consider cron on a dedicated admin node or a distributed cron solution.
+        # For Swarm, a single replica with placement constraint is common.
+        while [ true ]
+        do
+          php /var/www/html/artisan schedule:run --verbose --no-interaction &
+          sleep 60
+        done
+      "
+    environment: # Similar to queue worker
+      APP_NAME: "${APP_NAME:-MySwarmApp}_Scheduler"
+      APP_ENV: production
+      # ... other necessary ENVs ...
+      DB_HOST: db
+      REDIS_HOST: redis
+      APP_KEY_FILE: /run/secrets/app_key
+      DB_PASSWORD_FILE: /run/secrets/db_password
+    secrets:
+      - app_key
+      - db_password
+    networks:
+      - app-network
+    depends_on:
+      - db
+      - redis
+    deploy:
+      mode: replicated
+      replicas: 1 # Ensure only one scheduler runs
+      placement:
+        constraints: [node.role == manager] # Example: run on a manager node
+      restart_policy:
+        condition: on-failure
+
+  # Migration/Setup Task (Example - run manually or via CI/CD)
+  # This service is intended to be run as a one-off task.
+  # docker service create --name myapp_migrations --network app-network \
+  #   --secret app_key --secret db_password \
+  #   -e DB_HOST=db -e ... (other envs) \
+  #   --restart-condition none your-registry/your-app:${APP_VERSION} \
+  #   php artisan migrate --force
+  #
+  # For tenants:
+  # docker service create --name myapp_tenant_setup --network app-network \
+  #   --secret app_key --secret db_password \
+  #   -e DB_HOST=db -e ... \
+  #   --restart-condition none your-registry/your-app:${APP_VERSION} \
+  #   php artisan tenants:setup
+
+# Note on Ingress (e.g., Traefik):
+# Traefik would typically be deployed as another service in the Swarm.
+# It would use Docker labels on the 'web' or 'app' service to configure routing,
+# handle SSL termination, and manage tenant subdomains.
+# Example Traefik labels are commented in the 'web' and 'app' services.
+# You would need to set up Traefik with a Docker Swarm provider.
+# And configure DNS for your central domain and wildcard for tenant subdomains to point to your Swarm ingress IPs.
+#
+# Example .env for Swarm (not used by docker stack deploy directly, but for your reference/scripts):
+# APP_NAME=MySwarmApp
+# APP_VERSION=latest # Tag for your Docker images
+# CENTRAL_DOMAIN=your-app.com # Your central production domain
+# DB_DATABASE=laravel_central_prod
+# DB_USERNAME=app_user_prod
+# APP_REPLICAS=3
+# WEB_REPLICAS=2
+# QUEUE_REPLICAS=2
+# ... other variables you might use to populate secrets or configs ...
