@@ -1,0 +1,428 @@
+version: '3.8'
+
+networks:
+  sail: # Using 'sail' as network name, similar to Laravel Sail
+    driver: bridge
+
+volumes:
+  sail-mysql:
+    driver: local
+  sail-redis:
+    driver: local
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ${APP_NAME:-laravel_app}_app
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+      # Add other specific mounts if needed, e.g. for persistent tenant storage if not handled by S3
+      # - ./storage/app/public_tenant:/var/www/html/storage/app/public_tenant # Example, review tenancy storage
+    environment:
+      - "DB_HOST=db"
+      - "DB_PORT=${DB_PORT:-3306}"
+      - "DB_DATABASE=${DB_DATABASE:-laravel}"
+      - "DB_USERNAME=${DB_USERNAME:-sail}"
+      - "DB_PASSWORD=${DB_PASSWORD:-password}"
+      - "REDIS_HOST=redis"
+      - "SESSION_DRIVER=${SESSION_DRIVER:-redis}" # Recommended to change to redis
+      - "CACHE_STORE=${CACHE_STORE:-redis}"     # Recommended to change to redis
+      - "QUEUE_CONNECTION=${QUEUE_CONNECTION:-redis}" # Recommended to change to redis
+      - "PHP_IDE_CONFIG=serverName=Docker" # For Xdebug, if you add it later
+      - "APP_URL=${APP_URL:-http://localhost}"
+      - "VITE_ASSET_URL=${APP_URL:-http://localhost}:80/build" # For Vite assets through Nginx
+      - "VITE_APP_NAME=${APP_NAME:-Laravel}"
+      - "APP_ENV=${APP_ENV:-local}"
+      - "APP_DEBUG=${APP_DEBUG:-true}"
+      - "APP_KEY=${APP_KEY}" # Must be set in .env
+      # For tenancy, ensure these are correctly pointing to container hostnames
+      - "TENANCY_DB_HOST=db"
+      - "TENANCY_DB_USERNAME=${DB_USERNAME:-sail}"
+      - "TENANCY_DB_PASSWORD=${DB_PASSWORD:-password}"
+    depends_on:
+      - db
+      - redis
+    networks:
+      - sail
+
+  web:
+    image: nginx:alpine
+    container_name: ${APP_NAME:-laravel_app}_web
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-80}:80"
+    volumes:
+      - .:/var/www/html:ro # Read-only mount for app code if Nginx serves static assets directly
+      - ./public:/var/www/html/public:ro # More specific mount for public assets
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
+    networks:
+      - sail
+
+  db:
+    image: mysql:8.0 # Or use mariadb:latest or postgres:15-alpine
+    container_name: ${APP_NAME:-laravel_app}_db
+    restart: unless-stopped
+    ports:
+      - "${FORWARD_DB_PORT:-3306}:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "${DB_ROOT_PASSWORD:-secret}"
+      MYSQL_DATABASE: "${DB_DATABASE:-laravel}"
+      MYSQL_USER: "${DB_USERNAME:-sail}"
+      MYSQL_PASSWORD: "${DB_PASSWORD:-password}"
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    volumes:
+      - sail-mysql:/var/lib/mysql
+      - ./docker/mysql/my.cnf:/etc/mysql/conf.d/my.cnf # Optional: custom MySQL config
+      # - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql # Optional: initial SQL script
+    networks:
+      - sail
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-p${DB_PASSWORD:-password}"]
+      retries: 3
+      timeout: 5s
+
+  redis:
+    image: redis:alpine
+    container_name: ${APP_NAME:-laravel_app}_redis
+    restart: unless-stopped
+    ports:
+      - "${FORWARD_REDIS_PORT:-6379}:6379"
+    volumes:
+      - sail-redis:/data
+    networks:
+      - sail
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      retries: 3
+      timeout: 5s
+
+  queue:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ${APP_NAME:-laravel_app}_queue
+    restart: unless-stopped
+    command: php artisan queue:work --verbose --tries=3 --timeout=90
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+    environment:
+      - "DB_HOST=db"
+      - "REDIS_HOST=redis"
+      - "APP_ENV=${APP_ENV:-local}"
+      # Add other necessary ENV vars for the queue worker
+    depends_on:
+      - app # Depends on app for code, but more directly on db and redis
+      - db
+      - redis
+    networks:
+      - sail
+
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ${APP_NAME:-laravel_app}_scheduler
+    restart: unless-stopped
+    command: |
+      bash -c "
+        echo 'Starting Laravel Scheduler...'
+        while [ true ]
+        do
+          php /var/www/html/artisan schedule:run --verbose --no-interaction &
+          sleep 60
+        done
+      "
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+    environment:
+      - "DB_HOST=db"
+      - "REDIS_HOST=redis"
+      - "APP_ENV=${APP_ENV:-local}"
+      # Add other necessary ENV vars
+    depends_on:
+      - app
+      - db
+      - redis
+    networks:
+      - sail
+
+  # Optional: Mailpit/Mailhog for local email testing
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: ${APP_NAME:-laravel_app}_mailpit
+    restart: unless-stopped
+    ports:
+      - "${FORWARD_MAILPIT_PORT:-1025}:1025" # SMTP
+      - "${FORWARD_MAILPIT_UI_PORT:-8025}:8025" # Web UI
+    networks:
+      - sail
+    environment:
+      MP_MAX_MESSAGES: 5000
+      MP_DATABASE: /data/mailpit.db
+    volumes:
+      - ./docker/mailpit_data:/data # Persistent storage for emails
+
+# Example for a custom MySQL config (optional)
+# Create ./docker/mysql/my.cnf
+# [mysqld]
+# character-set-server=utf8mb4
+# collation-server=utf8mb4_unicode_ci
+# default_authentication_plugin=mysql_native_password
+#
+# Example for init.sql (optional) for MySQL - ensure DB_DATABASE is not created by default if using this
+# CREATE DATABASE IF NOT EXISTS another_db;
+# GRANT ALL PRIVILEGES ON another_db.* TO '${DB_USERNAME}'@'%';
+# FLUSH PRIVILEGES;
+
+# Example for Vite HMR if running `npm run dev` locally and want to proxy
+# You'd typically run `npm run dev` on your host machine and configure vite.config.js
+# to listen on 0.0.0.0 and set the server.hmr.host to your Docker host IP.
+# The web service would then need to proxy requests to Vite dev server.
+# This setup assumes assets are pre-built by `yarn build` in the Dockerfile.
+# For live Vite HMR during development with Docker, the setup is more complex.
+# One common approach is to run `vite` on the host and have Nginx proxy to it,
+# or run Vite inside the container and map its port.
+# The current Dockerfile builds assets, so VITE_ASSET_URL is set for Nginx to serve them.
+# If you want to use Vite's HMR, you'd need to adjust `vite.config.js` and potentially this docker-compose.
+# And set `VITE_ORIGIN_URL` if Vite is running inside a container.
+# e.g., in vite.config.js server: { host: '0.0.0.0', port: 5173, hmr: { host: 'localhost', clientPort: 5173 } }
+# then expose 5173 from the 'app' container and ensure Nginx proxies / HMR works.
+# The current setup uses VITE_ASSET_URL pointing to Nginx, assuming assets are built.
+# For development with HMR, you might have an override docker-compose file or different app service command.
+# e.g. command: bash -c "yarn install && yarn dev --host 0.0.0.0" for the app service in a dev compose file.
+# And then Nginx would need to proxy to this Vite dev server.
+# The VITE_ASSET_URL is for when assets are *built* and served by Nginx.
+# If Vite is running in dev mode (HMR), it serves its own assets.
+# The `Architecture.md` mentions `npm run dev` in composer.json `dev` script, which includes Vite.
+# This docker-compose is geared towards a "production-like" build where assets are pre-compiled.
+# For a dev setup with HMR, you'd typically run `vite` in the `app` container or on the host.
+# If running `vite` in the `app` container, expose its port (e.g. 5173) and ensure `vite.config.js` is set to listen on `0.0.0.0`.
+# Then update VITE_ASSET_URL or configure Nginx to proxy to the Vite dev server.
+# The current `VITE_ASSET_URL=${APP_URL:-http://localhost}:80/build` is for static assets.
+# For Vite dev server: `VITE_ORIGIN_URL=http://localhost:5173` (if Vite runs on 5173 and is exposed)
+
+# Note on tenancy and domains:
+# For local development with subdomains (e.g., tenant1.localhost), you'll need to edit your /etc/hosts file:
+# 127.0.0.1 tenant1.localhost
+# 127.0.0.1 tenant2.localhost
+# The Nginx config uses `server_name _;` which will catch all hostnames.
+# For `stancl/tenancy` to work, ensure `APP_URL` in your .env is set to your main domain (e.g., `http://localhost` or `http://myapp.test`)
+# and your tenant domains are configured correctly in the central database `domains` table.
+# The `central_domains` in `config/tenancy.php` should also match your central app's access domain.
+# Example: if APP_URL=http://app.test, then central_domains could be ['app.test'].
+# And tenant domains would be tenant1.app.test, tenant2.app.test.
+# These would need to be in your /etc/hosts file pointing to 127.0.0.1.
+# Example .env for docker:
+# APP_NAME=MyTenantApp
+# APP_ENV=local
+# APP_KEY=base64:yourkeyhere # Generate with php artisan key:generate
+# APP_DEBUG=true
+# APP_URL=http://localhost # Or your chosen local domain e.g. http://myapp.test
+#
+# LOG_CHANNEL=stack
+#
+# DB_CONNECTION=mysql
+# DB_HOST=db
+# DB_PORT=3306
+# DB_DATABASE=laravel_central
+# DB_USERNAME=sail # or your chosen user
+# DB_PASSWORD=password # or your chosen password
+# DB_ROOT_PASSWORD=secret # For the db container
+#
+# QUEUE_CONNECTION=redis
+# SESSION_DRIVER=redis
+# CACHE_STORE=redis
+#
+# REDIS_HOST=redis
+# REDIS_PASSWORD=null
+# REDIS_PORT=6379
+#
+# MAIL_MAILER=smtp
+# MAIL_HOST=mailpit
+# MAIL_PORT=1025
+# MAIL_USERNAME=null
+# MAIL_PASSWORD=null
+# MAIL_ENCRYPTION=null
+# MAIL_FROM_ADDRESS="hello@example.com"
+# MAIL_FROM_NAME="${APP_NAME}"
+#
+# # For Vite when assets are built and served by Nginx
+# VITE_ASSET_URL="${APP_URL}/build"
+# # If running Vite dev server (e.g. in app container on port 5173)
+# # VITE_ORIGIN_URL="http://localhost:5173"
+#
+# # Tenancy specific (stancl/tenancy uses these to connect to the *central* db to manage tenants)
+# # These are effectively the same as DB_* for the central app in this docker setup.
+# # The package then uses these credentials to create/manage tenant databases.
+# TENANCY_DB_HOST=db
+# TENANCY_DB_USERNAME=${DB_USERNAME:-sail} # User needs CREATE DATABASE permissions
+# TENANCY_DB_PASSWORD=${DB_PASSWORD:-password}
+#
+# # Central domains for tenancy (from config/tenancy.php)
+# # Example: if APP_URL=http://myapp.test, then set this to myapp.test
+# # If APP_URL=http://localhost, then set to localhost
+# CENTRAL_DOMAIN=localhost # This is just an example, align with your APP_URL and /etc/hosts
+#
+# # Ports for docker-compose
+# APP_PORT=80
+# FORWARD_DB_PORT=3306
+# FORWARD_REDIS_PORT=6379
+# FORWARD_MAILPIT_PORT=1025
+# FORWARD_MAILPIT_UI_PORT=8025
+#
+# # If you use AWS S3 for tenant storage, configure these
+# # FILESYSTEM_DISK=s3
+# # AWS_ACCESS_KEY_ID=
+# # AWS_SECRET_ACCESS_KEY=
+# # AWS_DEFAULT_REGION=
+# # AWS_BUCKET=
+# # AWS_USE_PATH_STYLE_ENDPOINT=false
+#
+# # For filesystem tenancy with local disk:
+# # The config/tenancy.php has: 'public' => '%storage_path%/tenant%tenant_id%/app/public',
+# # This means tenant files will go into /var/www/html/storage/tenant<ID>/app/public/
+# # If you want this persisted across container restarts, you might need a volume for /var/www/html/storage
+# # However, for local dev, files written inside the container (if not in a named volume) are ephemeral
+# # if the container is removed. The current setup mounts '.' to '/var/www/html', so `storage` dir from your
+# # host is used, meaning tenant storage will persist on your host machine.
+# # This is usually fine for local development.
+# # For production, you'd use S3 or a persistent volume for tenant storage.
+#
+# # Ensure APP_KEY is set in your actual .env file.
+# # php artisan key:generate
+# # cp .env.example .env
+# # Then fill .env with the above settings.
+#
+# # To give the sail user permission to create databases (needed for tenancy):
+# # In the db container (or via init script):
+# # GRANT ALL PRIVILEGES ON *.* TO 'sail'@'%' WITH GRANT OPTION;
+# # FLUSH PRIVILEGES;
+# # The default mysql:8.0 image with MYSQL_USER and MYSQL_PASSWORD will grant privileges on MYSQL_DATABASE.*
+# # To allow tenant creation, the user needs broader privileges, or use root for TENANCY_DB_USERNAME/PASSWORD
+# # or ensure the user specified by DB_USERNAME/PASSWORD has CREATE DATABASE rights.
+# # A simpler approach for local dev is to use the root user for tenancy management:
+# # TENANCY_DB_USERNAME=root
+# # TENANCY_DB_PASSWORD=${DB_ROOT_PASSWORD:-secret}
+# # Or grant `CREATE DATABASE` to the `sail` user.
+# # The `MYSQL_ROOT_PASSWORD` is for the root user *inside* the MySQL container.
+# # The `MYSQL_USER` and `MYSQL_PASSWORD` create a *new* user and grant it privileges on `MYSQL_DATABASE`.
+# # For `stancl/tenancy` to create new databases, the connection it uses (configured via `tenancy.database.central_connection`
+# # which defaults to `env('DB_CONNECTION')`, and then it uses *those* credentials from the `database.php` entry)
+# # must have `CREATE DATABASE` privileges.
+# # So, if `DB_USERNAME=sail`, that user needs `CREATE DATABASE`.
+# # One way is to connect to mysql as root and run:
+# # GRANT CREATE ON *.* TO 'sail'@'%'; FLUSH PRIVILEGES;
+# # Or, as mentioned, for local dev, you could configure tenancy to use the root MySQL user for simplicity:
+# # In .env:
+# # TENANCY_DB_USERNAME=root
+# # TENANCY_DB_PASSWORD=${DB_ROOT_PASSWORD}
+# # And ensure `config/tenancy.php` uses a connection that resolves to these credentials.
+# # The `stancl/tenancy` config uses `database.central_connection` which is `env('DB_CONNECTION')`.
+# # Then it uses the config for that connection (e.g., `mysql`) from `config/database.php`.
+# # So, if `DB_CONNECTION=mysql`, it uses `env('DB_HOST')`, `env('DB_USERNAME')`, etc.
+# # So, the user `env('DB_USERNAME')` needs `CREATE DATABASE` permission.
+# # Easiest for local dev: set `DB_USERNAME=root` and `DB_PASSWORD=${DB_ROOT_PASSWORD}` in your .env.
+# # Then the app connects to MySQL as root, which can create tenant databases.
+# # This is simpler than manually granting privileges to a 'sail' user for local setup.
+# #
+# # Example .env for this simplified DB user approach:
+# # DB_CONNECTION=mysql
+# # DB_HOST=db
+# # DB_DATABASE=laravel_central # The main app's database
+# # DB_USERNAME=root
+# # DB_PASSWORD=secret # This should match MYSQL_ROOT_PASSWORD
+# #
+# # TENANCY_DB_HOST=db # Not strictly needed by stancl/tenancy if using DB_CONNECTION
+# # TENANCY_DB_USERNAME=root # Not strictly needed by stancl/tenancy
+# # TENANCY_DB_PASSWORD=secret # Not strictly needed by stancl/tenancy
+# # The package will use the 'mysql' connection details from database.php, which use DB_USERNAME=root.
+#
+# # Final check on Vite:
+# # The Dockerfile runs `yarn build`. This creates static assets in `public/build`.
+# # `VITE_ASSET_URL="${APP_URL}/build"` in `.env` tells Laravel how to find these.
+# # Nginx serves these assets. This is for a production-like setup.
+# # If you want HMR during development:
+# # 1. Modify `app` service in `docker-compose.yml`:
+# #    command: bash -c "yarn install && yarn dev --host 0.0.0.0"
+# #    ports:
+# #      - "5173:5173" # Expose Vite's port
+# # 2. In `.env`, set `VITE_ORIGIN_URL="http://localhost:5173"` (or whatever host/port Vite uses).
+# #    And remove/comment `VITE_ASSET_URL`.
+# # 3. Ensure `vite.config.js` server part is:
+# #    server: {
+# #        host: '0.0.0.0', // Listen on all interfaces within container
+# #        port: 5173,
+# #        hmr: {
+# #            host: 'localhost', // How browser connects to Vite HMR
+# #        }
+# #    },
+# # 4. Nginx might need to proxy `/node_modules/` or other Vite specific paths if issues.
+# #    Or, more simply, access your app via `localhost:80` (Nginx) and Vite assets will be fetched from `localhost:5173`.
+# #    The `@vite` Blade directive should handle this using `VITE_ORIGIN_URL`.
+# # For this project, I'm sticking to the "built assets" approach as it's simpler for a baseline Docker setup.Okay, I've created the `docker-compose.yml` file.
+
+Here's a summary of what it includes:
+
+*   **Version:** `3.8`
+*   **Network:** A bridge network named `sail` for inter-service communication.
+*   **Volumes:** Named volumes `sail-mysql` and `sail-redis` for persistent data storage for MySQL and Redis respectively.
+*   **Services:**
+    *   `app`:
+        *   Builds from the local `Dockerfile`.
+        *   Named `APP_NAME_app` (defaulting to `laravel_app_app`).
+        *   Mounts the current directory (`.`) to `/var/www/html` in the container, allowing live code changes during development.
+        *   Sets environment variables for database connection (`DB_HOST=db`), Redis (`REDIS_HOST=redis`), and other Laravel settings. It encourages using Redis for session, cache, and queue.
+        *   Depends on `db` and `redis`.
+    *   `web`:
+        *   Uses the `nginx:alpine` image.
+        *   Named `APP_NAME_web`.
+        *   Maps port `APP_PORT` (default 80) on the host to port 80 in the container.
+        *   Mounts the application code (read-only, specifically `public` for assets and the main code for Nginx to have access if needed, though PHP-FPM serves PHP) and the Nginx configuration file (`docker/nginx/default.conf`).
+        *   Depends on `app`.
+    *   `db`:
+        *   Uses `mysql:8.0` image (can be changed to PostgreSQL or MariaDB).
+        *   Named `APP_NAME_db`.
+        *   Maps `FORWARD_DB_PORT` (default 3306) on the host to port 3306.
+        *   Sets MySQL environment variables for root password, database name, user, and password. These should align with the `app` service's DB credentials.
+        *   Uses the `sail-mysql` volume for data persistence.
+        *   Includes an optional mount for custom `my.cnf`.
+        *   Has a healthcheck.
+    *   `redis`:
+        *   Uses `redis:alpine` image.
+        *   Named `APP_NAME_redis`.
+        *   Maps `FORWARD_REDIS_PORT` (default 6379) on the host to port 6379.
+        *   Uses the `sail-redis` volume for data persistence.
+        *   Has a healthcheck.
+    *   `queue`:
+        *   Builds from the local `Dockerfile` (same as `app`).
+        *   Named `APP_NAME_queue`.
+        *   Runs the `php artisan queue:work` command.
+        *   Mounts the application code.
+        *   Depends on `app`, `db`, and `redis`.
+    *   `scheduler`:
+        *   Builds from the local `Dockerfile`.
+        *   Named `APP_NAME_scheduler`.
+        *   Runs a loop that executes `php artisan schedule:run` every minute.
+        *   Mounts the application code.
+        *   Depends on `app`, `db`, and `redis`.
+    *   `mailpit`:
+        *   Optional service using `axllent/mailpit` for local email testing.
+        *   Exposes SMTP port 1025 and web UI port 8025.
+
+**Important Considerations from the compose file comments:**
+*   **`.env` file:** Users will need to create a `.env` file based on `.env.example` and configure it for the Docker environment (e.g., `DB_HOST=db`, `REDIS_HOST=redis`, `MAIL_HOST=mailpit`). Specific attention is needed for `APP_KEY`.
+*   **Tenant Database Creation:** The MySQL user (`DB_USERNAME`) needs `CREATE DATABASE` privileges for `stancl/tenancy` to function. The compose file notes suggest that for local development, setting `DB_USERNAME=root` and `DB_PASSWORD=${MYSQL_ROOT_PASSWORD}` in the `.env` file is the simplest way to ensure the application (running as root in MySQL) can create tenant databases.
+*   **Vite/Frontend Assets:** The current setup assumes frontend assets are built by `yarn build` during the `Dockerfile` image creation and served by Nginx. `VITE_ASSET_URL` is configured for this. For development with Vite HMR, the setup would need adjustments (running `yarn dev` in the container, exposing Vite's port, and configuring `VITE_ORIGIN_URL`).
+*   **Tenant Subdomains:** For local development with tenant subdomains (e.g., `tenant1.localhost`), users will need to modify their `/etc/hosts` file.
+*   **Persistent Tenant Storage:** The current setup mounts the host `storage` directory into the container via the main volume mount (`.:/var/www/html`). This means tenant-specific files generated under `storage/tenant<ID>/` will persist on the host machine, which is suitable for local development. For production, S3 or dedicated persistent volumes would be used.
+
+I've also added placeholder directories in the comments for optional custom MySQL config and init scripts, and for Mailpit data. I will now create the `docker-entrypoint.sh` script referenced in the `Dockerfile`.
