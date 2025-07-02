@@ -3,14 +3,14 @@ FROM node:lts-alpine as frontend_builder
 
 WORKDIR /app_frontend
 
-# Install git, needed for some yarn dependencies
+# Install git, needed for some npm dependencies that might be git repos
 RUN apk add --no-cache git
 
-COPY package.json yarn.lock ./
-RUN yarn install --frozen-lockfile
+COPY package.json package-lock.json ./
+RUN npm ci
 
 COPY . .
-RUN yarn build
+RUN npm run build
 
 # Stage 2: Setup PHP application
 FROM php:8.2-fpm-alpine
@@ -74,14 +74,13 @@ RUN { \
 
 # Copy composer files and install dependencies
 COPY composer.json composer.lock ./
-RUN composer install --no-interaction --no-plugins --no-scripts --no-dev --prefer-dist --optimize-autoloader
+RUN composer install --no-interaction --no-dev --prefer-dist --optimize-autoloader
 
 # Copy application code (excluding files handled by .dockerignore)
 COPY . .
 
 # Copy built frontend assets from the frontend_builder stage
 COPY --chown=www-data:www-data --from=frontend_builder /app_frontend/public/build /var/www/html/public/build
-COPY --chown=www-data:www-data --from=frontend_builder /app_frontend/public/hot /var/www/html/public/hot
 
 # Set permissions for storage and bootstrap/cache
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
